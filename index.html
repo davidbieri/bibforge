@@ -1,1 +1,3013 @@
-SDf
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BibForge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0d0c0a;
+  --surface:  #141210;
+  --surface2: #1c1a17;
+  --surface3: #242018;
+  --border:   #2e2b24;
+  --border2:  #3a3630;
+  --text:     #e4ddd0;
+  --text2:    #a8a090;
+  --text3:    #6a6358;
+  --amber:    #c8973a;
+  --amber-dim:#7a5a1e;
+  --blue:     #5b8fa8;
+  --blue-dim: #2e4f60;
+  --green:    #5a9a6e;
+  --red:      #b85040;
+  --tag-bg:   #1e2a22;
+  --radius:   4px;
+  --mono:     'IBM Plex Mono', monospace;
+  --serif:    'Source Serif 4', Georgia, serif;
+  --display:  'Playfair Display', Georgia, serif;
+}
+
+/* ── LIGHT THEME ── */
+:root.light {
+  --bg:       #f5f2ec;
+  --surface:  #ede9e1;
+  --surface2: #e4dfd5;
+  --surface3: #d8d2c6;
+  --border:   #c8c0b0;
+  --border2:  #b0a898;
+  --text:     #1a1814;
+  --text2:    #4a4540;
+  --text3:    #8a8278;
+  --amber:    #9a6a18;
+  --amber-dim:#f0e0c0;
+  --blue:     #2a6080;
+  --blue-dim: #ccdde8;
+  --green:    #2a6a40;
+  --red:      #8a2820;
+  --tag-bg:   #d8eae0;
+}
+:root.light .jel-tag   { background:#ccdde8; border-color:#a8c8d8; }
+:root.light .loc-tag   { background:#d0e8d8; border-color:#a0c8b0; }
+:root.light .type-article { background:#d0e0ea; }
+:root.light .type-book    { background:#d0e8d8; }
+:root.light .type-inbook  { background:#d0e8d8; }
+:root.light .type-incollection { background:#d8ead8; }
+:root.light .type-inproceedings { background:#ddd0ea; }
+:root.light .type-misc    { background:#ead8c0; }
+:root.light .type-techreport   { background:#e8dcc0; }
+:root.light .type-phdthesis    { background:#e8d0d8; }
+:root.light .type-working      { background:#e8ddc0; }
+:root.light .drop-zone { border-color: var(--border2); }
+:root.light .suggest-strip { background: var(--surface2); }
+:root.light .suggest-chip  { background: var(--surface3); }
+:root.light #logo svg rect, :root.light #logo svg line { stroke: var(--amber) !important; }
+
+/* Smooth theme transitions */
+*, *::before, *::after { transition: background-color .2s, border-color .2s, color .15s; }
+/* But keep animations instant */
+.toast, .modal, .modal-overlay, .entry-row, .filter-opt, #progress-bar { transition: none !important; }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--serif); font-size: 14px; line-height: 1.5; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+/* ── LAYOUT ── */
+#app { display: flex; flex-direction: column; height: 100vh; }
+
+#header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 16px; height: 52px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  flex-shrink: 0; z-index: 10;
+}
+
+#logo {
+  font-family: var(--display); font-size: 17px; font-weight: 700;
+  color: var(--amber); letter-spacing: -0.3px; white-space: nowrap;
+  display: flex; align-items: center; gap: 8px;
+}
+#logo span { color: var(--text2); font-weight: 400; font-size: 11px; font-family: var(--mono); letter-spacing: 0; }
+
+#search-wrap { flex: 1; max-width: 420px; position: relative; }
+#search {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text); font-family: var(--serif);
+  font-size: 13px; padding: 6px 10px 6px 30px; outline: none; transition: border-color .15s;
+}
+#search:focus { border-color: var(--amber); }
+#search::placeholder { color: var(--text3); }
+#search-icon { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); color: var(--text3); pointer-events: none; }
+
+#entry-count { font-family: var(--mono); font-size: 11px; color: var(--text3); white-space: nowrap; }
+
+.hbtn {
+  display: flex; align-items: center; gap: 6px; padding: 6px 10px;
+  background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text2); font-family: var(--mono); font-size: 11px; cursor: pointer;
+  transition: all .15s; white-space: nowrap;
+}
+.hbtn:hover { border-color: var(--border2); color: var(--text); background: var(--surface3); }
+.hbtn.primary { background: var(--amber-dim); border-color: var(--amber); color: var(--amber); }
+.hbtn.primary:hover { background: var(--amber); color: var(--bg); }
+.hbtn svg { flex-shrink: 0; }
+
+#body { display: flex; flex: 1; overflow: hidden; }
+
+/* ── SIDEBAR ── */
+#sidebar {
+  width: 200px; flex-shrink: 0; overflow-y: auto;
+  background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+}
+.sb-section { border-bottom: 1px solid var(--border); padding: 12px; }
+.sb-title { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
+
+.filter-opt {
+  display: flex; align-items: center; gap: 7px; padding: 3px 4px;
+  border-radius: var(--radius); cursor: pointer; font-size: 12.5px; color: var(--text2);
+  transition: background .1s, color .1s; user-select: none;
+}
+.filter-opt:hover { background: var(--surface2); color: var(--text); }
+.filter-opt.active { color: var(--amber); }
+.filter-opt .count { margin-left: auto; font-family: var(--mono); font-size: 10px; color: var(--text3); }
+
+.range-wrap { display: flex; gap: 6px; align-items: center; }
+.range-input {
+  width: 60px; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text); font-family: var(--mono);
+  font-size: 11px; padding: 4px 6px; outline: none;
+}
+.range-input:focus { border-color: var(--amber); }
+.range-sep { color: var(--text3); font-size: 11px; }
+
+.sb-select {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text); font-family: var(--mono);
+  font-size: 11px; padding: 4px 6px; outline: none; cursor: pointer;
+}
+.sb-select:focus { border-color: var(--amber); }
+
+/* ── ENTRY LIST ── */
+#list-wrap { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+#list-header {
+  display: flex; align-items: center; padding: 0 12px;
+  height: 34px; background: var(--surface); border-bottom: 1px solid var(--border);
+  flex-shrink: 0; gap: 8px;
+}
+.sort-btn { font-family: var(--mono); font-size: 10px; color: var(--text3); cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 2px 5px; border-radius: 3px; transition: color .15s; }
+.sort-btn:hover, .sort-btn.active { color: var(--amber); }
+.sort-btn .arrow { font-size: 8px; }
+
+#list-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; position: relative; }
+#list-spacer { width: 100%; }
+#list-items { position: absolute; top: 0; left: 0; width: 100%; }
+
+.entry-row {
+  display: flex; align-items: flex-start; gap: 10px; padding: 9px 12px;
+  border-bottom: 1px solid var(--border); cursor: pointer;
+  transition: background .1s; position: relative;
+}
+.entry-row:hover { background: var(--surface2); }
+.entry-row.selected { background: var(--surface3); border-left: 2px solid var(--amber); padding-left: 10px; }
+
+.row-type {
+  font-family: var(--mono); font-size: 9px; padding: 2px 5px;
+  border-radius: 2px; text-transform: uppercase; letter-spacing: .04em;
+  flex-shrink: 0; margin-top: 2px; min-width: 46px; text-align: center;
+}
+.type-article { background: #1a2835; color: var(--blue); }
+.type-book    { background: #1e2a22; color: var(--green); }
+.type-inbook  { background: #1e2a22; color: var(--green); }
+.type-incollection { background: #1e2a22; color: #7ab87a; }
+.type-inproceedings { background: #251e30; color: #9a78c8; }
+.type-misc    { background: #252018; color: var(--amber); }
+.type-techreport { background: #252218; color: #b8943a; }
+.type-phdthesis { background: #2a1a25; color: #c87898; }
+.type-working  { background: #252018; color: #c89868; }
+.type-default  { background: var(--surface3); color: var(--text3); }
+
+.row-main { flex: 1; min-width: 0; }
+.row-authors { font-size: 12px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row-title { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+.row-meta { display: flex; align-items: center; gap: 8px; margin-top: 3px; flex-wrap: wrap; }
+.row-year { font-family: var(--mono); font-size: 11px; color: var(--amber); }
+.row-venue { font-size: 11px; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px; font-style: italic; }
+.row-jel { font-family: var(--mono); font-size: 10px; color: var(--blue); }
+.row-key { font-family: var(--mono); font-size: 10px; color: var(--text3); }
+
+/* ── DETAIL PANEL ── */
+#detail {
+  width: 380px; flex-shrink: 0; overflow-y: auto;
+  background: var(--surface); border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+}
+
+#detail-empty {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 12px; color: var(--text3); text-align: center; padding: 40px;
+}
+#detail-empty svg { opacity: .3; }
+#detail-empty p { font-family: var(--mono); font-size: 11px; line-height: 1.7; }
+
+#detail-content { display: none; flex-direction: column; flex: 1; }
+
+#detail-header {
+  padding: 14px 14px 10px; border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.detail-type-badge {
+  font-family: var(--mono); font-size: 10px; padding: 2px 6px;
+  border-radius: 2px; text-transform: uppercase; display: inline-block; margin-bottom: 8px;
+}
+.detail-title { font-family: var(--display); font-size: 15px; font-weight: 700; line-height: 1.3; color: var(--text); }
+.detail-authors { font-size: 12.5px; color: var(--text2); margin-top: 5px; font-style: italic; }
+.detail-year { font-family: var(--mono); font-size: 12px; color: var(--amber); margin-top: 3px; }
+
+.detail-actions { display: flex; gap: 6px; padding: 8px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.detail-btn {
+  flex: 1; padding: 6px; text-align: center; border-radius: var(--radius);
+  font-family: var(--mono); font-size: 11px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--surface2);
+  color: var(--text2); transition: all .15s;
+}
+.detail-btn:hover { border-color: var(--border2); color: var(--text); background: var(--surface3); }
+.detail-btn.danger:hover { border-color: var(--red); color: var(--red); }
+.detail-btn.edit-btn.editing { background: var(--amber-dim); border-color: var(--amber); color: var(--amber); }
+
+#detail-fields { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+
+/* ── RAW BIBTEX PANE ── */
+#bibtex-pane {
+  border-top: 1px solid var(--border); flex-shrink: 0;
+  display: flex; flex-direction: column;
+}
+#bibtex-toggle {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 14px; cursor: pointer; user-select: none;
+  font-family: var(--mono); font-size: 10px; color: var(--text3);
+  transition: color .15s, background .15s;
+}
+#bibtex-toggle:hover { color: var(--amber); background: var(--surface2); }
+#bibtex-toggle-arrow {
+  font-size: 9px; transition: transform .2s;
+}
+#bibtex-toggle-arrow.open { transform: rotate(180deg); }
+
+#bibtex-raw {
+  display: none; overflow-x: auto; overflow-y: auto;
+  max-height: 320px; padding: 10px 14px 14px;
+  background: var(--surface2); border-top: 1px solid var(--border);
+}
+#bibtex-raw.open { display: block; }
+
+#bibtex-raw pre {
+  font-family: var(--mono); font-size: 11px; line-height: 1.7;
+  white-space: pre; color: var(--text2); margin: 0;
+}
+/* Syntax highlighting spans */
+.bib-at      { color: var(--amber); font-weight: 500; }
+.bib-type    { color: var(--amber); }
+.bib-key     { color: var(--text); font-weight: 500; }
+.bib-field   { color: var(--blue); }
+.bib-brace   { color: var(--text3); }
+.bib-value   { color: var(--green); }
+.bib-comment { color: var(--text3); font-style: italic; }
+
+:root.light #bibtex-raw { background: var(--surface3); }
+:root.light .bib-value  { color: #2a6a40; }
+
+.field-row { display: flex; flex-direction: column; gap: 3px; }
+.field-label { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: .06em; text-transform: uppercase; }
+.field-value { font-size: 13px; color: var(--text); word-break: break-word; }
+.field-value.mono { font-family: var(--mono); font-size: 11.5px; color: var(--blue); }
+.field-value.doi { font-family: var(--mono); font-size: 11px; color: var(--amber); cursor: pointer; text-decoration: underline; text-decoration-style: dotted; }
+.field-value.doi:hover { color: var(--text); }
+
+.jel-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.jel-tag {
+  font-family: var(--mono); font-size: 10px; padding: 2px 6px;
+  border-radius: 2px; background: #1a2835; color: var(--blue);
+  border: 1px solid #2a3a48;
+}
+.loc-tag {
+  font-family: var(--mono); font-size: 10px; padding: 2px 6px;
+  border-radius: 2px; background: var(--tag-bg); color: var(--green);
+  border: 1px solid #2a3a2a;
+}
+
+.field-value.abstract { color: var(--text2); font-size: 12.5px; line-height: 1.6; max-height: 150px; overflow-y: auto; }
+
+/* ── EDIT FORM ── */
+#edit-form { display: none; flex-direction: column; flex: 1; overflow-y: auto; }
+.form-section { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+.form-section-title { font-family: var(--mono); font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.form-grid.full { grid-template-columns: 1fr; }
+
+.form-group { display: flex; flex-direction: column; gap: 3px; }
+.form-label { font-family: var(--mono); font-size: 10px; color: var(--text3); }
+.form-input, .form-select, .form-textarea {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text); font-family: var(--serif);
+  font-size: 12.5px; padding: 5px 8px; outline: none; transition: border-color .15s; width: 100%;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--amber); }
+.form-input.mono, .form-select { font-family: var(--mono); font-size: 11px; }
+.form-textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
+
+.doi-lookup-row { display: flex; gap: 6px; }
+.doi-lookup-row .form-input { flex: 1; }
+.doi-lookup-btn {
+  padding: 5px 10px; background: var(--blue-dim); border: 1px solid var(--blue);
+  border-radius: var(--radius); color: var(--blue); font-family: var(--mono);
+  font-size: 11px; cursor: pointer; white-space: nowrap; transition: all .15s;
+}
+.doi-lookup-btn:hover { background: var(--blue); color: var(--bg); }
+.doi-lookup-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.jel-picker { display: flex; flex-direction: column; gap: 6px; }
+.jel-picker-search {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); color: var(--text); font-family: var(--mono);
+  font-size: 11px; padding: 5px 8px; outline: none; width: 100%;
+}
+.jel-picker-search:focus { border-color: var(--amber); }
+.jel-list { max-height: 140px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+.jel-item {
+  padding: 4px 8px; cursor: pointer; font-family: var(--mono); font-size: 11px;
+  color: var(--text2); display: flex; gap: 8px; align-items: baseline;
+  transition: background .1s;
+}
+.jel-item:hover { background: var(--surface3); color: var(--text); }
+.jel-item.selected { background: #1a2835; color: var(--blue); }
+.jel-item .jel-code { color: var(--blue); min-width: 36px; }
+.jel-item .jel-desc { font-size: 10px; color: var(--text3); }
+.jel-selected-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.jel-sel-tag {
+  font-family: var(--mono); font-size: 10px; padding: 2px 6px;
+  background: #1a2835; color: var(--blue); border: 1px solid #2a3a48;
+  border-radius: 2px; cursor: pointer; display: flex; align-items: center; gap: 4px;
+}
+.jel-sel-tag:hover { background: #251a1a; color: var(--red); border-color: #48282a; }
+
+.form-save-row { padding: 10px 14px; display: flex; gap: 6px; flex-shrink: 0; }
+.form-save-btn {
+  flex: 1; padding: 8px; text-align: center; border-radius: var(--radius);
+  font-family: var(--mono); font-size: 12px; cursor: pointer; font-weight: 500;
+  transition: all .15s;
+}
+.btn-save { background: var(--amber-dim); border: 1px solid var(--amber); color: var(--amber); }
+.btn-save:hover { background: var(--amber); color: var(--bg); }
+.btn-cancel { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); }
+.btn-cancel:hover { background: var(--surface3); color: var(--text); }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.7); backdrop-filter: blur(2px);
+  display: flex; align-items: center; justify-content: center; z-index: 100;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border2); border-radius: 6px;
+  width: 520px; max-width: 95vw; max-height: 90vh; overflow: hidden;
+  display: flex; flex-direction: column; transform: translateY(10px);
+  transition: transform .2s;
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; border-bottom: 1px solid var(--border);
+}
+.modal-title { font-family: var(--display); font-size: 16px; font-weight: 700; color: var(--text); }
+.modal-close { cursor: pointer; color: var(--text3); padding: 2px; transition: color .15s; }
+.modal-close:hover { color: var(--text); }
+.modal-body { padding: 16px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px; }
+.modal-footer { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+.modal-btn {
+  padding: 7px 16px; border-radius: var(--radius); font-family: var(--mono);
+  font-size: 12px; cursor: pointer; transition: all .15s; border: 1px solid var(--border);
+}
+.modal-btn.primary { background: var(--amber-dim); border-color: var(--amber); color: var(--amber); }
+.modal-btn.primary:hover { background: var(--amber); color: var(--bg); }
+.modal-btn.secondary { background: var(--surface2); color: var(--text2); }
+.modal-btn.secondary:hover { background: var(--surface3); color: var(--text); }
+
+/* ── TOAST ── */
+#toast-wrap { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 200; }
+.toast {
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: var(--radius); padding: 9px 14px; font-family: var(--mono);
+  font-size: 12px; color: var(--text); box-shadow: 0 4px 20px rgba(0,0,0,.5);
+  animation: toastIn .2s ease-out;
+  display: flex; align-items: center; gap: 8px; max-width: 340px;
+}
+.toast.success { border-left: 3px solid var(--green); }
+.toast.error { border-left: 3px solid var(--red); }
+.toast.info { border-left: 3px solid var(--blue); }
+@keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+
+/* ── PROGRESS ── */
+#progress-bar {
+  position: fixed; top: 0; left: 0; height: 2px; background: var(--amber);
+  transition: width .3s; z-index: 300; display: none;
+}
+
+/* ── EMPTY STATE ── */
+#list-empty { padding: 60px 20px; text-align: center; color: var(--text3); display: none; }
+#list-empty h3 { font-family: var(--display); color: var(--text2); margin-bottom: 8px; }
+
+/* ── NO FILE STATE ── */
+#no-file {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 20px; padding: 40px;
+}
+.drop-zone {
+  border: 2px dashed var(--border2); border-radius: 8px;
+  padding: 40px 60px; text-align: center; cursor: pointer;
+  transition: all .2s; max-width: 480px; width: 100%;
+}
+.drop-zone:hover, .drop-zone.drag-over { border-color: var(--amber); background: rgba(200,151,58,.05); }
+.drop-zone-icon { font-size: 48px; margin-bottom: 12px; opacity: .4; }
+.drop-zone h2 { font-family: var(--display); font-size: 22px; color: var(--text); margin-bottom: 8px; }
+.drop-zone p { color: var(--text3); font-size: 13px; line-height: 1.6; margin-bottom: 16px; }
+.drop-zone-sub { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-top: 8px; }
+
+/* Auto-load status strip */
+#autoload-status {
+  display: none; align-items: center; gap: 10px;
+  padding: 10px 16px; background: var(--surface2);
+  border: 1px solid var(--border2); border-radius: var(--radius);
+  font-family: var(--mono); font-size: 11px; color: var(--text2);
+  max-width: 480px; width: 100%;
+}
+#autoload-status.visible { display: flex; }
+#autoload-status.ok   { border-color: var(--green); color: var(--green); }
+#autoload-status.fail { border-color: var(--border2); color: var(--text3); }
+.autoload-spinner {
+  width: 14px; height: 14px; border: 2px solid var(--border2);
+  border-top-color: var(--amber); border-radius: 50%; flex-shrink: 0;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.autoload-path { color: var(--amber); }
+
+/* ── SUGGEST BUTTONS & STRIPS ── */
+.suggest-btn {
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px;
+  background: var(--blue-dim); border: 1px solid var(--blue); border-radius: 2px;
+  color: var(--blue); font-family: var(--mono); font-size: 10px; cursor: pointer;
+  transition: all .15s; white-space: nowrap; flex-shrink: 0;
+}
+.suggest-btn:hover { background: var(--blue); color: var(--bg); }
+.suggest-btn:disabled { opacity: .4; cursor: not-allowed; }
+.suggest-btn.loading { animation: pulse .8s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:.6} 50%{opacity:1} }
+
+.suggest-strip {
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: var(--radius); padding: 8px 10px; margin-bottom: 8px;
+  border-left: 2px solid var(--blue);
+}
+.suggest-strip.hidden { display: none; }
+.suggest-strip-label { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-bottom: 6px; }
+.suggest-chips { display: flex; flex-direction: column; gap: 5px; }
+
+.suggest-chip {
+  display: flex; align-items: flex-start; gap: 8px; padding: 6px 8px;
+  background: var(--surface3); border: 1px solid var(--border); border-radius: var(--radius);
+  cursor: pointer; transition: all .15s;
+}
+.suggest-chip:hover { border-color: var(--blue); background: #1a2835; }
+.suggest-chip.accepted { border-color: var(--green); background: var(--tag-bg); pointer-events: none; }
+.suggest-chip-code { font-family: var(--mono); font-size: 11px; color: var(--blue); min-width: 36px; font-weight: 500; flex-shrink: 0; }
+.suggest-chip-desc { font-size: 11.5px; color: var(--text2); flex: 1; line-height: 1.4; }
+.suggest-chip-rank { font-family: var(--mono); font-size: 9px; color: var(--text3); flex-shrink: 0; }
+.suggest-chip-add { font-family: var(--mono); font-size: 9px; color: var(--blue); flex-shrink: 0; padding: 1px 5px; border: 1px solid var(--blue-dim); border-radius: 2px; }
+.suggest-chip:hover .suggest-chip-add { background: var(--blue); color: var(--bg); border-color: var(--blue); }
+.suggest-chip.accepted .suggest-chip-add { background: var(--green); color: var(--bg); border-color: var(--green); }
+
+.suggest-basis { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 6px; line-height: 1.5; }
+
+.loc-suggest-chip {
+  display: flex; align-items: flex-start; gap: 8px; padding: 6px 8px;
+  background: var(--surface3); border: 1px solid var(--border); border-radius: var(--radius);
+  cursor: pointer; transition: all .15s;
+}
+.loc-suggest-chip:hover { border-color: var(--green); background: var(--tag-bg); }
+.loc-suggest-chip.accepted { border-color: var(--green); pointer-events: none; }
+.loc-chip-code { font-family: var(--mono); font-size: 11px; color: var(--green); min-width: 36px; font-weight: 500; flex-shrink: 0; }
+.loc-chip-desc { font-size: 11.5px; color: var(--text2); flex: 1; }
+.loc-chip-add { font-family: var(--mono); font-size: 9px; color: var(--green); flex-shrink: 0; padding: 1px 5px; border: 1px solid #2a3a2a; border-radius: 2px; }
+.loc-suggest-chip:hover .loc-chip-add { background: var(--green); color: var(--bg); }
+
+/* ── FETCH METADATA TABS ── */
+.fetch-tabs { display: flex; gap: 0; margin-bottom: 10px; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.fetch-tab {
+  flex: 1; padding: 5px 6px; text-align: center; font-family: var(--mono); font-size: 10px;
+  cursor: pointer; color: var(--text3); background: var(--surface2); transition: all .12s;
+  border-right: 1px solid var(--border); user-select: none;
+}
+.fetch-tab:last-child { border-right: none; }
+.fetch-tab:hover { color: var(--text); background: var(--surface3); }
+.fetch-tab.active { background: var(--blue-dim); color: var(--blue); }
+:root.light .fetch-tab.active { background: var(--blue-dim); color: var(--blue); }
+
+.fetch-panel { display: none; flex-direction: column; gap: 6px; }
+.fetch-panel.active { display: flex; }
+
+.fetch-row { display: flex; gap: 6px; align-items: center; }
+.fetch-row .form-input { flex: 1; }
+
+.fetch-btn {
+  padding: 5px 11px; border-radius: var(--radius); font-family: var(--mono); font-size: 11px;
+  cursor: pointer; white-space: nowrap; transition: all .15s; border: 1px solid;
+  flex-shrink: 0;
+}
+.fetch-btn.crossref    { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); }
+.fetch-btn.crossref:hover { background: var(--blue); color: var(--bg); }
+.fetch-btn.openlibrary { background: #1e2e1e; border-color: var(--green); color: var(--green); }
+.fetch-btn.openlibrary:hover { background: var(--green); color: var(--bg); }
+:root.light .fetch-btn.openlibrary { background: #d0e8d8; }
+.fetch-btn.googlebooks { background: #1a2a24; border-color: #4a8a68; color: #4a8a68; }
+.fetch-btn.googlebooks:hover { background: #4a8a68; color: var(--bg); }
+:root.light .fetch-btn.googlebooks { background: #d0e4da; }
+.fetch-btn.worldcat { background: var(--surface3); border-color: var(--border2); color: var(--text2); }
+.fetch-btn.worldcat:hover { background: var(--amber-dim); border-color: var(--amber); color: var(--amber); }
+:root.light .fetch-btn.worldcat { background: var(--surface3); }
+.fetch-btn:disabled { opacity: .45; cursor: not-allowed; }
+.fetch-status { font-family: var(--mono); font-size: 10px; color: var(--text3); min-height: 14px; }
+.fetch-status.ok  { color: var(--green); }
+.fetch-status.err { color: var(--red); }
+.fetch-hint { font-family: var(--mono); font-size: 10px; color: var(--text3); line-height: 1.5; }
+
+/* ── DATASOURCE BADGE ── */
+.datasource-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--mono); font-size: 10px; padding: 2px 7px;
+  border-radius: 2px; border: 1px solid;
+}
+.datasource-badge.crossref    { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); }
+.datasource-badge.openlibrary { background: #1e2e1e; border-color: var(--green); color: var(--green); }
+.datasource-badge.googlebooks { background: #1a2a24; border-color: #4a8a68; color: #4a8a68; }
+.datasource-badge.manual      { background: var(--surface3); border-color: var(--border2); color: var(--text3); }
+:root.light .datasource-badge.openlibrary { background:#d0e8d8; }
+:root.light .datasource-badge.googlebooks { background:#d0e4da; }
+:root.light .datasource-badge.crossref    { background: var(--blue-dim); }
+:root.light .datasource-badge.manual      { background: var(--surface3); }
+
+/* ── THEME TOGGLE ── */
+.theme-toggle {
+  display: flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; border-radius: var(--radius);
+  background: var(--surface2); border: 1px solid var(--border);
+  cursor: pointer; color: var(--text3); flex-shrink: 0;
+}
+.theme-toggle:hover { color: var(--amber); border-color: var(--amber-dim); }
+
+/* Smooth theme transitions — exclude animated elements */
+html { transition: background-color .25s; }
+body, #header, #sidebar, #list-wrap, #detail, .entry-row,
+.form-input, .form-select, .form-textarea, .sb-select, .range-input,
+.hbtn, .detail-btn, .suggest-btn, .fetch-btn, .fetch-tab,
+.form-section, .jel-list, .jel-item, .suggest-chip, .loc-suggest-chip {
+  transition: background-color .2s, border-color .2s, color .15s;
+}
+
+/* ── UTILITY ── */
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"></div>
+<div id="toast-wrap"></div>
+
+<div id="app">
+
+  <!-- HEADER -->
+  <div id="header">
+    <div id="logo">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <rect x="2" y="3" width="11" height="14" rx="1.5" fill="none" stroke="#c8973a" stroke-width="1.4"/>
+        <rect x="5" y="1.5" width="11" height="14" rx="1.5" fill="none" stroke="#c8973a" stroke-width="1.4" opacity=".4"/>
+        <line x1="5" y1="7" x2="10" y2="7" stroke="#c8973a" stroke-width="1.2"/>
+        <line x1="5" y1="10" x2="11" y2="10" stroke="#c8973a" stroke-width="1.2"/>
+        <line x1="5" y1="13" x2="9" y2="13" stroke="#c8973a" stroke-width="1.2"/>
+      </svg>
+      BibForge
+      <span>— academic reference manager</span>
+    </div>
+
+    <div id="search-wrap">
+      <svg id="search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.3"/>
+        <line x1="9.5" y1="9.5" x2="12.5" y2="12.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <input id="search" type="text" placeholder="Search title, author, key, DOI…" autocomplete="off">
+    </div>
+
+    <span id="entry-count">–</span>
+    <div class="sep"></div>
+
+    <button class="hbtn" id="btn-new" onclick="openNewEntry()" title="New entry">
+      <svg width="12" height="12" viewBox="0 0 12 12"><line x1="6" y1="1" x2="6" y2="11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="1" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      New
+    </button>
+    <button class="hbtn" id="btn-import" onclick="triggerImport()">
+      <svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 1v6M3.5 5l2.5 2.5L8.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M1 9h10v1.5H1z" fill="currentColor" opacity=".3"/></svg>
+      Import .bib
+    </button>
+    <button class="hbtn primary" id="btn-export" onclick="exportBib()" disabled>
+      <svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 8V2M3.5 4l2.5-2.5L8.5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M1 9h10v1.5H1z" fill="currentColor" opacity=".5"/></svg>
+      Export .bib
+    </button>
+
+    <!-- Theme toggle -->
+    <div class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark theme">
+      <svg id="theme-icon-dark" width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 2.5a4.5 4.5 0 100 9 4.5 4.5 0 000-9z" stroke="currentColor" stroke-width="1.3"/>
+        <line x1="7" y1="1" x2="7" y2="0" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="7" y1="14" x2="7" y2="13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="1" y1="7" x2="0" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="14" y1="7" x2="13" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <svg id="theme-icon-light" width="14" height="14" viewBox="0 0 14 14" fill="none" style="display:none">
+        <path d="M11.5 9A5 5 0 015 2.5a5 5 0 100 9 5 5 0 006.5-2.5z" stroke="currentColor" stroke-width="1.3" fill="none"/>
+      </svg>
+    </div>
+
+    <input type="file" id="file-input" accept=".bib" class="hidden" onchange="handleFileImport(this)">
+  </div>
+
+  <!-- BODY -->
+  <div id="body">
+
+    <!-- SIDEBAR -->
+    <div id="sidebar">
+      <div class="sb-section">
+        <div class="sb-title">Entry Type</div>
+        <div id="type-filters"></div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-title">Year Range</div>
+        <div class="range-wrap">
+          <input type="number" class="range-input" id="year-from" placeholder="1900" min="1400" max="2100" oninput="applyFilters()">
+          <span class="range-sep">–</span>
+          <input type="number" class="range-input" id="year-to" placeholder="2026" min="1400" max="2100" oninput="applyFilters()">
+        </div>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-title">JEL Code</div>
+        <select class="sb-select" id="jel-filter" onchange="applyFilters()">
+          <option value="">All JEL codes</option>
+        </select>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-title">LOC Class</div>
+        <select class="sb-select" id="loc-filter" onchange="applyFilters()">
+          <option value="">All LOC classes</option>
+        </select>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-title">Data Source</div>
+        <select class="sb-select" id="datasource-filter" onchange="applyFilters()">
+          <option value="">All sources</option>
+          <option value="crossref">CrossRef</option>
+          <option value="openlibrary">Open Library</option>
+          <option value="googlebooks">Google Books</option>
+          <option value="manual">Manual / unknown</option>
+        </select>
+      </div>
+
+      <div class="sb-section">
+        <div class="sb-title">Sort</div>
+        <select class="sb-select" id="sort-select" onchange="applySort()">
+          <option value="year-desc">Year ↓ (newest)</option>
+          <option value="year-asc">Year ↑ (oldest)</option>
+          <option value="author-asc">Author A→Z</option>
+          <option value="author-desc">Author Z→A</option>
+          <option value="title-asc">Title A→Z</option>
+          <option value="key-asc">Citation key A→Z</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ENTRY LIST -->
+    <div id="list-wrap">
+      <!-- No file state -->
+      <div id="no-file">
+        <div class="drop-zone" id="drop-zone" onclick="triggerImport()">
+          <div class="drop-zone-icon">📚</div>
+          <h2>Open a BibTeX Library</h2>
+          <p>Drop your .bib file here or click to browse.<br>Supports large collections — 10,000+ entries.</p>
+          <button class="hbtn primary" style="margin: 0 auto; display: flex;">Browse for .bib file</button>
+          <div class="drop-zone-sub" id="drop-zone-sub">Or start fresh and add entries manually via DOI lookup</div>
+        </div>
+        <div id="autoload-status">
+          <div class="autoload-spinner" id="autoload-spinner"></div>
+          <span id="autoload-msg">Loading…</span>
+        </div>
+        <button class="hbtn" onclick="startFresh()" style="font-size:12px;">Start with empty library →</button>
+      </div>
+
+      <!-- List header (hidden until loaded) -->
+      <div id="list-header" class="hidden">
+        <span style="font-family:var(--mono);font-size:10px;color:var(--text3);">SORT:</span>
+        <div id="sort-btns"></div>
+        <div class="sep"></div>
+        <span id="filtered-count" style="font-family:var(--mono);font-size:10px;color:var(--text3);"></span>
+      </div>
+
+      <!-- Virtual scroll list -->
+      <div id="list-scroll" class="hidden">
+        <div id="list-spacer"></div>
+        <div id="list-items"></div>
+      </div>
+
+      <div id="list-empty">
+        <h3>No results</h3>
+        <p>Try adjusting your search or filters.</p>
+      </div>
+    </div>
+
+    <!-- DETAIL PANEL -->
+    <div id="detail">
+      <div id="detail-empty">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <rect x="8" y="6" width="26" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="2"/>
+          <line x1="14" y1="16" x2="28" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="14" y1="22" x2="28" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="14" y1="28" x2="22" y2="28" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <p>Select an entry to<br>view its details</p>
+      </div>
+
+      <div id="detail-content">
+        <div id="detail-header">
+          <div id="d-type" class="detail-type-badge"></div>
+          <div id="d-title" class="detail-title"></div>
+          <div id="d-authors" class="detail-authors"></div>
+          <div id="d-year" class="detail-year"></div>
+        </div>
+        <div class="detail-actions">
+          <div class="detail-btn edit-btn" id="btn-edit" onclick="toggleEdit()">Edit</div>
+          <div class="detail-btn" id="btn-copy-key" onclick="copyKey()">Copy Key</div>
+          <div class="detail-btn" id="btn-copy-bib" onclick="copyBibEntry()">Copy BibTeX</div>
+          <div class="detail-btn danger" id="btn-delete" onclick="deleteEntry()">Delete</div>
+        </div>
+        <div id="detail-fields"></div>
+
+        <!-- Raw BibTeX collapsible pane -->
+        <div id="bibtex-pane">
+          <div id="bibtex-toggle" onclick="toggleBibtexPane()" title="Show/hide raw BibTeX entry">
+            <span>
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" style="vertical-align:-1px;margin-right:5px">
+                <rect x="1" y="2" width="7" height="9" rx="1" stroke="currentColor" stroke-width="1.2" fill="none"/>
+                <rect x="4" y="1" width="7" height="9" rx="1" stroke="currentColor" stroke-width="1.2" fill="none" opacity=".5"/>
+                <line x1="3" y1="5.5" x2="6.5" y2="5.5" stroke="currentColor" stroke-width="1.1"/>
+                <line x1="3" y1="7.5" x2="7" y2="7.5" stroke="currentColor" stroke-width="1.1"/>
+              </svg>
+              Raw BibTeX
+            </span>
+            <span id="bibtex-toggle-arrow">▲</span>
+          </div>
+          <div id="bibtex-raw">
+            <pre id="bibtex-raw-content"></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit form (inside detail panel) -->
+      <div id="edit-form">
+        <div class="form-section">
+          <div class="form-section-title">Fetch Metadata</div>
+
+          <!-- Source tabs -->
+          <div class="fetch-tabs">
+            <div class="fetch-tab active" id="ftab-doi"    onclick="switchFetchTab('doi')">DOI / CrossRef</div>
+            <div class="fetch-tab"        id="ftab-isbn"   onclick="switchFetchTab('isbn')">ISBN / Open Library</div>
+            <div class="fetch-tab"        id="ftab-title"  onclick="switchFetchTab('title')">Title Search</div>
+          </div>
+
+          <!-- Panel: DOI → CrossRef -->
+          <div class="fetch-panel active" id="fpanel-doi">
+            <div class="fetch-row">
+              <input class="form-input mono" id="doi-input" placeholder="10.xxxx/xxxxx or https://doi.org/…" autocomplete="off">
+              <button class="fetch-btn crossref" id="doi-btn" onclick="doiLookup()">CrossRef ↗</button>
+            </div>
+            <div class="fetch-status" id="doi-status"></div>
+          </div>
+
+          <!-- Panel: ISBN → Open Library (+ Google Books fallback) -->
+          <div class="fetch-panel" id="fpanel-isbn">
+            <div class="fetch-row">
+              <input class="form-input mono" id="isbn-input" placeholder="978-x-xxx-xxxxx-x or 10-digit" autocomplete="off">
+              <button class="fetch-btn openlibrary" id="isbn-ol-btn" onclick="isbnLookup()">Open Library ↗</button>
+            </div>
+            <div class="fetch-row" style="margin-top:2px;">
+              <span class="fetch-hint" style="flex:1">Google Books used as fallback if Open Library returns sparse data</span>
+              <button class="fetch-btn googlebooks" id="isbn-gb-btn" onclick="googleBooksIsbnLookup()">Google Books ↗</button>
+            </div>
+            <div class="fetch-row" style="margin-top:2px;">
+              <span class="fetch-hint" style="flex:1">Can't find it? Search WorldCat directly</span>
+              <button class="fetch-btn worldcat" onclick="openWorldCat()">WorldCat ↗</button>
+            </div>
+            <div class="fetch-status" id="isbn-status"></div>
+          </div>
+
+          <!-- Panel: Title/Author search (Open Library + Google Books) -->
+          <div class="fetch-panel" id="fpanel-title">
+            <div class="fetch-row">
+              <input class="form-input" id="title-search-input" placeholder="Title keywords" autocomplete="off" style="flex:2">
+              <input class="form-input" id="author-search-input" placeholder="Author surname" autocomplete="off" style="flex:1">
+            </div>
+            <div class="fetch-row" style="margin-top:4px;">
+              <button class="fetch-btn openlibrary" id="title-ol-btn" onclick="titleSearchOpenLibrary()">Open Library ↗</button>
+              <button class="fetch-btn googlebooks" id="title-gb-btn" onclick="titleSearchGoogleBooks()">Google Books ↗</button>
+              <button class="fetch-btn worldcat" onclick="openWorldCat()">WorldCat ↗</button>
+            </div>
+            <div class="fetch-status" id="title-status"></div>
+          </div>
+
+          <!-- Datasource provenance display (read-only, set by fetch functions) -->
+          <div id="datasource-row" style="display:none;margin-top:6px;align-items:center;gap:8px;">
+            <span style="font-family:var(--mono);font-size:10px;color:var(--text3);">source:</span>
+            <span id="datasource-badge-display"></span>
+          </div>
+          <input type="hidden" id="f-datasource" value="">
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Core Fields</div>
+          <div class="form-grid full" style="margin-bottom:8px;">
+            <div class="form-group">
+              <label class="form-label">Entry Type</label>
+              <select class="form-select" id="f-type">
+                <option value="article">article</option>
+                <option value="book">book</option>
+                <option value="inbook">inbook</option>
+                <option value="incollection">incollection</option>
+                <option value="inproceedings">inproceedings</option>
+                <option value="techreport">techreport</option>
+                <option value="phdthesis">phdthesis</option>
+                <option value="misc">misc</option>
+                <option value="unpublished">unpublished</option>
+                <option value="working">working paper</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-grid full">
+            <div class="form-group">
+              <label class="form-label">Citation Key</label>
+              <input class="form-input mono" id="f-key" placeholder="author:year:keyword">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Bibliographic Info</div>
+          <div class="form-grid full">
+            <div class="form-group">
+              <label class="form-label">Title</label>
+              <input class="form-input" id="f-title" placeholder="Full title including subtitle">
+            </div>
+          </div>
+          <div class="form-grid full" style="margin-top:8px;">
+            <div class="form-group">
+              <label class="form-label">Author(s) — Last, First and Last, First</label>
+              <input class="form-input" id="f-author" placeholder="Smith, John and Doe, Jane">
+            </div>
+          </div>
+          <div class="form-grid" style="margin-top:8px;">
+            <div class="form-group">
+              <label class="form-label">Year</label>
+              <input class="form-input mono" id="f-year" placeholder="2024" maxlength="4">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Editor(s)</label>
+              <input class="form-input" id="f-editor" placeholder="Editor, Name">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Publication Venue</div>
+          <div class="form-grid full">
+            <div class="form-group">
+              <label class="form-label">Journal / Booktitle / Publisher</label>
+              <input class="form-input" id="f-venue" placeholder="Journal of Urban Economics">
+            </div>
+          </div>
+          <div class="form-grid" style="margin-top:8px;">
+            <div class="form-group">
+              <label class="form-label">Volume</label>
+              <input class="form-input mono" id="f-volume" placeholder="42">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Number / Issue</label>
+              <input class="form-input mono" id="f-number" placeholder="3">
+            </div>
+          </div>
+          <div class="form-grid" style="margin-top:8px;">
+            <div class="form-group">
+              <label class="form-label">Pages</label>
+              <input class="form-input mono" id="f-pages" placeholder="123--456">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Edition</label>
+              <input class="form-input mono" id="f-edition" placeholder="3rd">
+            </div>
+          </div>
+          <div class="form-grid" style="margin-top:8px;">
+            <div class="form-group">
+              <label class="form-label">Publisher</label>
+              <input class="form-input" id="f-publisher" placeholder="University Press">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Address / City</label>
+              <input class="form-input" id="f-address" placeholder="Cambridge, MA">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Identifiers</div>
+          <div class="form-grid full">
+            <div class="form-group">
+              <label class="form-label">DOI</label>
+              <input class="form-input mono" id="f-doi" placeholder="10.xxxx/xxxxx">
+            </div>
+          </div>
+          <div class="form-grid" style="margin-top:8px;">
+            <div class="form-group">
+              <label class="form-label">ISBN</label>
+              <input class="form-input mono" id="f-isbn" placeholder="978-x-xxx-xxxxx-x">
+            </div>
+            <div class="form-group">
+              <label class="form-label">ISSN</label>
+              <input class="form-input mono" id="f-issn" placeholder="xxxx-xxxx">
+            </div>
+          </div>
+          <div class="form-grid full" style="margin-top:8px;">
+            <div class="form-group">
+              <label class="form-label">URL</label>
+              <input class="form-input mono" id="f-url" placeholder="https://...">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Classification</div>
+
+          <!-- JEL Picker -->
+          <div class="form-group" style="margin-bottom:10px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+              <label class="form-label" style="margin:0;">JEL Codes</label>
+              <button class="suggest-btn" id="jel-suggest-btn" onclick="suggestJEL()" title="Auto-suggest top 3 JEL codes from AEA classification tree">
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1a5 5 0 100 10A5 5 0 006 1z" stroke="currentColor" stroke-width="1.2"/><path d="M6 4v2.5L7.5 8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                Fetch JEL
+              </button>
+              <span id="jel-fetch-status" style="font-family:var(--mono);font-size:10px;color:var(--text3);"></span>
+            </div>
+
+            <!-- JEL Suggestion Strip -->
+            <div id="jel-suggestions" class="suggest-strip hidden">
+              <div class="suggest-strip-label">Top 3 suggested — click to add:</div>
+              <div id="jel-suggestion-chips" class="suggest-chips"></div>
+              <div id="jel-suggest-basis" class="suggest-basis"></div>
+            </div>
+
+            <div class="jel-picker">
+              <div id="jel-selected-tags" class="jel-selected-tags"></div>
+              <input class="jel-picker-search" id="jel-search" placeholder="Search JEL codes…" oninput="filterJelList()">
+              <div class="jel-list" id="jel-list"></div>
+            </div>
+          </div>
+
+          <!-- LOC Picker -->
+          <div class="form-group">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+              <label class="form-label" style="margin:0;">Library of Congress Classification</label>
+              <button class="suggest-btn" id="loc-suggest-btn" onclick="suggestLOC()" title="Auto-suggest LOC class (books only)">
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 1a5 5 0 100 10A5 5 0 006 1z" stroke="currentColor" stroke-width="1.2"/><path d="M6 4v2.5L7.5 8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                Suggest LOC
+              </button>
+              <span id="loc-suggest-status" style="font-family:var(--mono);font-size:10px;color:var(--text3);"></span>
+            </div>
+
+            <!-- LOC Suggestion Strip -->
+            <div id="loc-suggestions" class="suggest-strip hidden">
+              <div class="suggest-strip-label">Best matches — click to apply:</div>
+              <div id="loc-suggestion-chips" class="suggest-chips"></div>
+            </div>
+
+            <select class="form-select" id="f-lcc">
+              <option value="">— select class —</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Notes & Abstract</div>
+          <div class="form-grid full">
+            <div class="form-group">
+              <label class="form-label">Abstract</label>
+              <textarea class="form-textarea" id="f-abstract" rows="4" placeholder="Abstract text…"></textarea>
+            </div>
+          </div>
+          <div class="form-grid full" style="margin-top:8px;">
+            <div class="form-group">
+              <label class="form-label">Keywords</label>
+              <input class="form-input" id="f-keywords" placeholder="urban, housing, spatial economics">
+            </div>
+          </div>
+          <div class="form-grid full" style="margin-top:8px;">
+            <div class="form-group">
+              <label class="form-label">Note</label>
+              <input class="form-input" id="f-note" placeholder="Additional note or flag (e.g. VERIFY)">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-save-row">
+          <div class="form-save-btn btn-cancel" onclick="cancelEdit()">Cancel</div>
+          <div class="form-save-btn btn-save" onclick="saveEntry()">Save Entry</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /body -->
+</div><!-- /app -->
+
+<!-- NEW ENTRY MODAL (DOI shortcut from header) -->
+<div class="modal-overlay" id="doi-modal">
+  <div class="modal" style="width:440px;">
+    <div class="modal-header">
+      <div class="modal-title">Quick Add via DOI</div>
+      <div class="modal-close" onclick="closeModal('doi-modal')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Paste DOI</label>
+        <div class="doi-lookup-row">
+          <input class="form-input mono" id="modal-doi" placeholder="10.xxxx/xxxxx or full https://doi.org/…" style="font-size:12px;">
+          <button class="doi-lookup-btn" id="modal-doi-btn" onclick="modalDoiLookup()">Fetch ↗</button>
+        </div>
+      </div>
+      <div id="modal-doi-result" style="display:none; background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:12px; font-size:12.5px; line-height:1.6; color:var(--text2);">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn secondary" onclick="closeModal('doi-modal')">Cancel</button>
+      <button class="modal-btn primary" id="modal-doi-save" onclick="saveDoiEntry()" disabled>Add to Library</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════
+//  DATA: JEL CODES
+// ════════════════════════════════════════════════════
+const JEL = [
+  ['A','General Economics and Teaching'],
+  ['A1','General Economics'],['A10','General'],['A11','Role of Economists'],['A12','Relation to Other Disciplines'],['A13','Relation to Social Values'],['A14','Sociology of Economics'],
+  ['B','History of Economic Thought & Methodology'],
+  ['B1','History of Economic Thought through 1925'],['B2','History of Economic Thought since 1925'],['B3','History of Economic Thought: Individuals'],['B4','Economic Methodology'],['B5','Current Heterodox Approaches'],['B50','General'],['B51','Socialist; Marxian; Sraffian'],['B52','Institutional; Evolutionary'],['B54','Feminist Economics'],
+  ['C','Mathematical & Quantitative Methods'],
+  ['C1','Econometric and Statistical Methods'],['C10','General'],['C11','Bayesian Analysis'],['C12','Hypothesis Testing'],['C13','Estimation'],['C14','Semiparametric and Nonparametric Methods'],['C2','Single Equation Models'],['C3','Multiple or Simultaneous Equation Models'],['C4','Econometric and Statistical Methods: Special Topics'],['C5','Econometric Modeling'],['C6','Mathematical Methods'],['C7','Game Theory and Bargaining Theory'],['C8','Data Collection and Data Estimation Methodology'],['C9','Design of Experiments'],
+  ['D','Microeconomics'],
+  ['D1','Household Behavior and Family Economics'],['D2','Production and Organizations'],['D3','Distribution'],['D4','Market Structure, Pricing, and Design'],['D5','General Equilibrium and Disequilibrium'],['D6','Welfare Economics'],['D7','Analysis of Collective Decision-Making'],['D8','Information, Knowledge, and Uncertainty'],['D9','Micro-Based Behavioral Economics'],
+  ['E','Macroeconomics & Monetary Economics'],
+  ['E1','General Aggregative Models'],['E2','Consumption, Saving, Production, Investment'],['E3','Prices, Business Fluctuations, and Cycles'],['E4','Money and Interest Rates'],['E40','General'],['E41','Demand for Money'],['E42','Monetary Systems; Standards; Regimes'],['E43','Interest Rates'],['E44','Financial Markets and the Macroeconomy'],['E5','Monetary Policy, Central Banking, and Money Supply'],['E50','General'],['E51','Money Supply; Credit; Money Multipliers'],['E52','Monetary Policy'],['E58','Central Banks and Their Policies'],['E6','Macroeconomic Policy, Macroeconomic Aspects of Public Finance'],['E7','Macro-Based Behavioral Economics'],
+  ['F','International Economics'],
+  ['F1','Trade'],['F2','International Factor Movements and International Business'],['F3','International Finance'],['F4','Macroeconomic Aspects of International Trade and Finance'],['F5','International Relations, National Security'],['F6','Economic Impacts of Globalization'],
+  ['G','Financial Economics'],
+  ['G0','General'],['G1','General Financial Markets'],['G10','General'],['G11','Portfolio Choice; Investment Decisions'],['G12','Asset Pricing; Trading Volume'],['G13','Contingent Pricing; Futures Pricing'],['G14','Information and Market Efficiency'],['G15','International Financial Markets'],['G2','Financial Institutions and Services'],['G20','General'],['G21','Banks; Depository Institutions'],['G22','Insurance; Insurance Companies'],['G23','Non-bank Financial Institutions'],['G24','Investment Banking; Venture Capital'],['G28','Government Policy and Regulation'],['G3','Corporate Finance and Governance'],['G5','Household Finance'],
+  ['H','Public Economics'],
+  ['H1','Structure and Scope of Government'],['H2','Taxation, Subsidies, and Revenue'],['H3','Fiscal Policies and Behavior of Economic Agents'],['H4','Publicly Provided Goods'],['H5','National Government Expenditures and Related Policies'],['H6','National Budget, Deficit, and Debt'],['H7','State and Local Government; Intergovernmental Relations'],['H71','State and Local Taxation'],['H72','State and Local Budget and Expenditures'],['H73','Interjurisdictional Differentials and Their Effects'],['H74','State and Local Borrowing'],['H77','Intergovernmental Relations'],['H8','Miscellaneous Issues'],
+  ['I','Health, Education, and Welfare'],
+  ['I1','Health'],['I2','Education and Research Institutions'],['I3','Welfare, Well-Being, and Poverty'],
+  ['J','Labor & Demographic Economics'],
+  ['J1','Demographic Economics'],['J2','Demand and Supply of Labor'],['J3','Wages, Compensation, and Labor Costs'],['J4','Particular Labor Markets'],['J5','Labor-Management Relations, Trade Unions'],['J6','Mobility, Unemployment, Vacancies, and Immigrant Workers'],['J7','Labor Discrimination'],
+  ['K','Law & Economics'],
+  ['K1','Basic Areas of Law'],['K2','Regulation and Business Law'],['K3','Other Substantive Areas of Law'],['K4','Legal Procedure, the Legal System'],
+  ['L','Industrial Organization'],
+  ['L1','Market Structure, Firm Strategy, and Market Performance'],['L2','Firm Objectives, Organization, and Behavior'],['L3','Nonprofit Organizations and Public Enterprise'],['L4','Antitrust Issues and Policies'],['L5','Regulation and Industrial Policy'],['L6','Industry Studies: Manufacturing'],['L8','Industry Studies: Services'],['L9','Industry Studies: Transportation and Utilities'],
+  ['M','Business Administration & Economics'],
+  ['M1','Business Administration'],['M2','Business Economics'],['M3','Marketing and Advertising'],['M4','Accounting and Auditing'],['M5','Personnel Economics'],
+  ['N','Economic History'],
+  ['N1','Macroeconomics and Monetary Economics; Industrial Structure; Growth; Fluctuations'],['N2','Financial Markets and Institutions'],['N3','Labor and Consumers, Demography, Education, Health, Welfare, Income, Wealth'],['N4','Government, War, Law, International Relations, Regulation'],['N5','Agriculture, Natural Resources, Environment, Other Primary Products'],['N6','Manufacturing and Construction'],['N7','Transport, Trade, Energy, Technology, and Other Services'],['N8','Micro-Business History'],['N9','Regional and Urban History'],
+  ['O','Development, Innovation, Technological Change, Growth'],
+  ['O1','Economic Development'],['O10','General'],['O11','Macroeconomic Analyses of Economic Development'],['O12','Microeconomic Analyses of Economic Development'],['O13','Agriculture; Natural Resources; Energy; Environment'],['O14','Industrialization; Manufacturing and Service Industries'],['O15','Human Resources; Human Development; Income Distribution'],['O16','Financial Markets; Saving and Capital Investment'],['O17','Formal and Informal Sectors; Shadow Economy'],['O18','Urban, Rural, Regional, and Transportation Analysis'],['O2','Development Planning and Policy'],['O3','Innovation; Research and Development; Technological Change'],['O4','Economic Growth and Aggregate Productivity'],['O5','Economywide Country Studies'],
+  ['P','Economic Systems'],
+  ['P1','Capitalist Systems'],['P2','Socialist Systems and Transitional Economies'],['P3','Socialist Institutions and Their Transitions'],['P4','Other Economic Systems'],['P5','Comparative Economic Systems'],
+  ['Q','Agricultural & Natural Resource Economics'],
+  ['Q1','Agriculture'],['Q2','Renewable Resources and Conservation'],['Q3','Nonrenewable Resources and Conservation'],['Q4','Energy'],['Q5','Environmental Economics'],['Q50','General'],['Q51','Valuation of Environmental Effects'],['Q52','Pollution Control Adoption and Costs'],['Q53','Air Pollution; Water Pollution; Noise; Hazardous Waste'],['Q54','Climate; Natural Disasters and Their Management'],['Q55','Technological Innovation'],['Q56','Environment and Development; Sustainability'],
+  ['R','Urban, Rural, Regional, Real Estate & Transportation Economics'],
+  ['R0','General'],['R00','General'],
+  ['R1','General Regional Economics'],['R10','General'],['R11','Regional Economic Activity: Growth, Development'],['R12','Size and Spatial Distributions of Regional Economic Activity'],['R13','General Equilibrium and Welfare Economic Analysis of Regional Economies'],['R14','Land Use Patterns'],['R15','Econometric and Input-Output Models; Other Models'],
+  ['R2','Household Analysis'],['R20','General'],['R21','Housing Demand'],['R22','Other Demand'],['R23','Regional Migration; Regional Labor Markets'],
+  ['R3','Real Estate Markets, Spatial Production Analysis, and Firm Location'],['R30','General'],['R31','Housing Supply and Markets'],['R32','Other Spatial Production and Pricing Analysis'],['R33','Nonagricultural and Nonresidential Real Estate Markets'],['R38','Government Policy'],
+  ['R4','Transportation Economics'],['R40','General'],['R41','Transportation: Demand, Supply, and Congestion'],['R42','Government and Private Investment Analysis'],['R48','Government Pricing and Policy'],
+  ['R5','Regional Government Analysis'],['R50','General'],['R51','Finance in Urban and Rural Economies'],['R52','Land Use and Other Regulations'],['R53','Public Facility Location Analysis'],['R58','Regional Development Planning and Policy'],
+  ['Z','Other Special Topics'],
+  ['Z1','Cultural Economics; Economic Sociology'],['Z10','General'],['Z11','Cultural Goods: Economics and Industry'],['Z12','Religion'],['Z13','Economic Sociology; Economic Anthropology'],['Z18','Public Policy'],
+];
+
+// Flatten for display (code → description)
+const JEL_MAP = {};
+JEL.forEach(([code, desc]) => { JEL_MAP[code] = desc; });
+
+// ════════════════════════════════════════════════════
+//  DATA: LOC CLASSIFICATION
+// ════════════════════════════════════════════════════
+const LOC = [
+  ['B','Philosophy, Psychology, Religion'],
+  ['BJ','Ethics'],
+  ['C','Auxiliary Sciences of History'],
+  ['D','World History (General & Old World)'],
+  ['E','History of the Americas (United States)'],
+  ['F','History of the Americas (local)'],
+  ['G','Geography, Anthropology, Recreation'],
+  ['GF','Human Ecology, Anthropogeography'],
+  ['H','Social Sciences (General)'],
+  ['HA','Statistics'],
+  ['HB','Economic Theory; Demography'],
+  ['HC','Economic History and Conditions'],
+  ['HD','Industries; Land Use; Labor'],
+  ['HE','Transportation and Communications'],
+  ['HF','Commerce; Business'],
+  ['HG','Finance'],
+  ['HJ','Public Finance'],
+  ['HM','Sociology (General)'],
+  ['HN','Social History and Conditions; Social Problems; Social Reform'],
+  ['HQ','The Family; Marriage; Women; Gender Studies'],
+  ['HS','Societies: Secret, Benevolent'],
+  ['HT','Communities; Classes; Races'],
+  ['HV','Social Pathology; Social and Public Welfare'],
+  ['HX','Socialism; Communism; Anarchism'],
+  ['J','Political Science (General)'],
+  ['JC','Political Theory'],
+  ['JF','Political Institutions and Administration'],
+  ['JK','Political Institutions (United States)'],
+  ['JN','Political Institutions (Europe)'],
+  ['JS','Local Government; Municipal Government'],
+  ['JX','International Law; International Relations (old)'],
+  ['JZ','International Relations'],
+  ['K','Law (General)'],
+  ['KF','Law of the United States'],
+  ['KZ','Law of Nations'],
+  ['N','Fine Arts'],
+  ['NA','Architecture'],
+  ['NB','Sculpture'],
+  ['ND','Painting'],
+  ['P','Language and Literature'],
+  ['Q','Science (General)'],
+  ['QA','Mathematics; Computer Science'],
+  ['R','Medicine'],
+  ['S','Agriculture'],
+  ['T','Technology'],
+  ['TC','Hydraulic Engineering; Ocean Engineering'],
+  ['TD','Environmental Technology; Sanitary Engineering'],
+  ['TE','Highway Engineering; Roads and Pavements'],
+  ['TF','Railroad Engineering'],
+  ['TK','Electrical Engineering; Electronics'],
+  ['TL','Motor Vehicles; Aeronautics; Astronautics'],
+  ['UA','Armies: Organization, Distribution, Military Situation'],
+  ['Z','Bibliography; Library Science; Information Resources (General)'],
+];
+
+// ════════════════════════════════════════════════════
+//  CONFIGURATION
+//  Edit BIBFORGE_AUTO_LOAD to point to a .bib file in
+//  your repository. Set to null to always show the
+//  manual import screen on startup.
+//
+//  Examples:
+//    '/data/library.bib'          — file in repo /data/ folder
+//    '/library_inventory.bib'     — file at repo root
+//    null                         — manual import only
+// ════════════════════════════════════════════════════
+const BIBFORGE_CONFIG = {
+  autoLoad: '/data/library.bib',   // ← change this path, or set null
+  autoLoadLabel: 'library.bib',    // ← display name shown in the UI
+};
+
+// ════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════
+let entries    = [];   // all parsed entries
+let filtered   = [];   // after search + filter
+let selected   = null; // currently selected entry key
+let editing    = null; // entry being edited (copy)
+let isNew      = false;
+let editJel    = [];   // JEL codes being edited
+
+const ROW_H = 68;
+let scrollTop  = 0;
+
+// ════════════════════════════════════════════════════
+//  BIBTEX PARSER
+// ════════════════════════════════════════════════════
+function parseBibTeX(src) {
+  const results = [];
+  let i = 0;
+  const n = src.length;
+
+  function skipWS() { while (i < n && /\s/.test(src[i])) i++; }
+
+  function readBraceValue() {
+    // i is on opening {
+    i++; // skip {
+    let depth = 1, start = i;
+    while (i < n && depth > 0) {
+      if (src[i] === '{') depth++;
+      else if (src[i] === '}') depth--;
+      if (depth > 0) i++;
+      else i++;
+    }
+    return src.slice(start, i - 1);
+  }
+
+  function readQuoteValue() {
+    i++; // skip "
+    let start = i;
+    while (i < n && src[i] !== '"') {
+      if (src[i] === '\\') i++;
+      i++;
+    }
+    const v = src.slice(start, i);
+    i++; // skip closing "
+    return v;
+  }
+
+  function readToken() {
+    let start = i;
+    while (i < n && !/[\s,={}@"#]/.test(src[i])) i++;
+    return src.slice(start, i);
+  }
+
+  while (i < n) {
+    // Seek @
+    while (i < n && src[i] !== '@') i++;
+    if (i >= n) break;
+    i++; // skip @
+
+    skipWS();
+    const typeStart = i;
+    while (i < n && /\w/.test(src[i])) i++;
+    const type = src.slice(typeStart, i).toLowerCase();
+
+    skipWS();
+
+    if (!type || src[i] !== '{' && src[i] !== '(') continue;
+    const closer = src[i] === '{' ? '}' : ')';
+    i++; // skip opener
+
+    if (type === 'comment' || type === 'preamble') {
+      // skip to matching closer
+      let depth = 1;
+      while (i < n && depth > 0) {
+        if (src[i] === '{' || src[i] === '(') depth++;
+        else if (src[i] === '}' || src[i] === ')') depth--;
+        i++;
+      }
+      continue;
+    }
+
+    if (type === 'string') {
+      // skip
+      let depth = 1;
+      while (i < n && depth > 0) {
+        if (src[i] === '{') depth++;
+        else if (src[i] === '}') depth--;
+        i++;
+      }
+      continue;
+    }
+
+    // Read citation key
+    skipWS();
+    const keyStart = i;
+    while (i < n && src[i] !== ',' && src[i] !== '}' && src[i] !== ')') i++;
+    const key = src.slice(keyStart, i).trim();
+
+    if (src[i] !== ',') {
+      // entry with no fields
+      results.push({ type, key, fields: {} });
+      if (src[i] === closer) i++;
+      continue;
+    }
+    i++; // skip comma
+
+    const fields = {};
+
+    while (i < n) {
+      skipWS();
+      if (src[i] === '}' || src[i] === ')') { i++; break; }
+
+      // Field name
+      const fnStart = i;
+      while (i < n && src[i] !== '=' && src[i] !== '}' && src[i] !== ')' && src[i] !== ',') i++;
+      const fieldName = src.slice(fnStart, i).trim().toLowerCase();
+      skipWS();
+
+      if (src[i] !== '=') {
+        // malformed — skip to next comma or closer
+        while (i < n && src[i] !== ',' && src[i] !== '}') i++;
+        if (src[i] === ',') i++;
+        continue;
+      }
+      i++; // skip =
+      skipWS();
+
+      // Value
+      let value = '';
+      if (src[i] === '{') {
+        value = readBraceValue();
+      } else if (src[i] === '"') {
+        value = readQuoteValue();
+      } else {
+        // could be number or concatenation
+        const parts = [];
+        while (i < n) {
+          skipWS();
+          if (src[i] === '{') parts.push(readBraceValue());
+          else if (src[i] === '"') parts.push(readQuoteValue());
+          else {
+            const tok = readToken();
+            if (tok && tok !== '#') parts.push(tok);
+          }
+          skipWS();
+          if (src[i] === '#') { i++; continue; }
+          break;
+        }
+        value = parts.join('');
+      }
+
+      if (fieldName) fields[fieldName] = value;
+
+      skipWS();
+      if (src[i] === ',') i++;
+    }
+
+    results.push({ type, key, fields });
+  }
+
+  return results;
+}
+
+// ════════════════════════════════════════════════════
+//  BIBTEX WRITER
+// ════════════════════════════════════════════════════
+function entryToBibTeX(e) {
+  const lines = [`@${e.type}{${e.key},`];
+  const order = ['author','editor','title','booktitle','journal','year','volume','number','pages',
+    'publisher','address','edition','series','school','institution','type',
+    'doi','isbn','issn','url','jel','lcc','keywords','abstract','note'];
+  const written = new Set();
+  for (const f of order) {
+    if (e.fields[f] !== undefined && e.fields[f] !== '') {
+      lines.push(`  ${f.padEnd(12)} = {${e.fields[f]}},`);
+      written.add(f);
+    }
+  }
+  for (const [k, v] of Object.entries(e.fields)) {
+    if (!written.has(k) && v !== undefined && v !== '') {
+      lines.push(`  ${k.padEnd(12)} = {${v}},`);
+    }
+  }
+  lines.push('}');
+  return lines.join('\n');
+}
+
+function exportBibTeX(arr) {
+  return arr.map(entryToBibTeX).join('\n\n');
+}
+
+// ════════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════════
+function fmt(e, field) { return e.fields[field] || ''; }
+
+function getAuthors(e) {
+  const a = fmt(e,'author') || fmt(e,'editor');
+  if (!a) return '';
+  const parts = a.split(/\s+and\s+/i);
+  if (parts.length <= 2) return parts.map(p => p.split(',')[0].trim()).join(' & ');
+  return parts[0].split(',')[0].trim() + ' et al.';
+}
+
+function getVenue(e) {
+  return fmt(e,'journal') || fmt(e,'booktitle') || fmt(e,'publisher') || fmt(e,'institution') || fmt(e,'school') || '';
+}
+
+function stripBraces(s) { return s.replace(/[{}\\]/g, ''); }
+
+function typeClass(t) {
+  const m = { article:'type-article', book:'type-book', inbook:'type-inbook',
+    incollection:'type-incollection', inproceedings:'type-inproceedings',
+    misc:'type-misc', techreport:'type-techreport', phdthesis:'type-phdthesis',
+    unpublished:'type-working', working:'type-working' };
+  return m[t] || 'type-default';
+}
+
+function makeKey(author, year, title) {
+  const a = (author.split(',')[0] || '').toLowerCase().replace(/[^a-z]/g,'').slice(0,10);
+  const y = (year||'').slice(0,4);
+  const t = (title||'').toLowerCase().replace(/[^a-z\s]/g,'').trim().split(/\s+/).slice(0,2).join('');
+  return `${a}:${y}:${t}`;
+}
+
+// ════════════════════════════════════════════════════
+//  FILTER & SEARCH
+// ════════════════════════════════════════════════════
+let searchQ = '';
+let filterType = '';
+let filterJEL  = '';
+let filterLOC  = '';
+let filterYearFrom = '';
+let filterYearTo   = '';
+let filterDatasource = '';
+let sortMode   = 'year-desc';
+
+function getSearchable(e) {
+  return [e.key, fmt(e,'title'), fmt(e,'author'), fmt(e,'year'),
+    fmt(e,'journal'), fmt(e,'booktitle'), fmt(e,'doi'), fmt(e,'jel'),
+    fmt(e,'keywords'), fmt(e,'datasource')].join(' ').toLowerCase();
+}
+
+function applyFilters() {
+  filterYearFrom   = document.getElementById('year-from').value;
+  filterYearTo     = document.getElementById('year-to').value;
+  filterJEL        = document.getElementById('jel-filter').value;
+  filterLOC        = document.getElementById('loc-filter').value;
+  filterDatasource = document.getElementById('datasource-filter').value;
+  runFilter();
+}
+
+function runFilter() {
+  const q = searchQ.toLowerCase();
+  filtered = entries.filter(e => {
+    if (filterType && e.type !== filterType) return false;
+    const yr = parseInt(fmt(e,'year')) || 0;
+    if (filterYearFrom && yr < parseInt(filterYearFrom)) return false;
+    if (filterYearTo   && yr > parseInt(filterYearTo))   return false;
+    if (filterJEL && !fmt(e,'jel').includes(filterJEL)) return false;
+    if (filterLOC && !fmt(e,'lcc').startsWith(filterLOC)) return false;
+    if (filterDatasource) {
+      const ds = fmt(e,'datasource') || 'manual';
+      if (filterDatasource === 'manual') {
+        if (ds !== 'manual' && ds !== '') return false;
+      } else {
+        if (ds !== filterDatasource) return false;
+      }
+    }
+    if (q && !getSearchable(e).includes(q)) return false;
+    return true;
+  });
+  applySort(false);
+}
+
+function applySort(rerun = true) {
+  sortMode = document.getElementById('sort-select').value;
+  filtered.sort((a, b) => {
+    switch(sortMode) {
+      case 'year-desc': return (parseInt(fmt(b,'year'))||0) - (parseInt(fmt(a,'year'))||0);
+      case 'year-asc':  return (parseInt(fmt(a,'year'))||0) - (parseInt(fmt(b,'year'))||0);
+      case 'author-asc':  return getAuthors(a).localeCompare(getAuthors(b));
+      case 'author-desc': return getAuthors(b).localeCompare(getAuthors(a));
+      case 'title-asc':   return stripBraces(fmt(a,'title')).localeCompare(stripBraces(fmt(b,'title')));
+      case 'key-asc':     return a.key.localeCompare(b.key);
+      default: return 0;
+    }
+  });
+  renderList();
+}
+
+// ════════════════════════════════════════════════════
+//  VIRTUAL SCROLL RENDERER
+// ════════════════════════════════════════════════════
+function renderList() {
+  const wrap   = document.getElementById('list-scroll');
+  const spacer = document.getElementById('list-spacer');
+  const items  = document.getElementById('list-items');
+  const empty  = document.getElementById('list-empty');
+  const count  = document.getElementById('filtered-count');
+
+  count.textContent = `${filtered.length.toLocaleString()} / ${entries.length.toLocaleString()} entries`;
+  document.getElementById('entry-count').textContent = `${entries.length.toLocaleString()} entries`;
+
+  if (filtered.length === 0 && entries.length > 0) {
+    empty.style.display = 'block';
+    spacer.style.height = '0px';
+    items.innerHTML = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  spacer.style.height = (filtered.length * ROW_H) + 'px';
+  renderVisible();
+}
+
+function renderVisible() {
+  const wrap  = document.getElementById('list-scroll');
+  const items = document.getElementById('list-items');
+  if (!wrap) return;
+
+  const st     = wrap.scrollTop;
+  const height = wrap.clientHeight;
+  const startI = Math.max(0, Math.floor(st / ROW_H) - 5);
+  const endI   = Math.min(filtered.length - 1, Math.ceil((st + height) / ROW_H) + 5);
+
+  items.style.top = (startI * ROW_H) + 'px';
+
+  let html = '';
+  for (let i = startI; i <= endI; i++) {
+    const e = filtered[i];
+    const jel = fmt(e,'jel');
+    const sel = e.key === selected ? ' selected' : '';
+    html += `<div class="entry-row${sel}" onclick="selectEntry('${e.key.replace(/'/g,"\\'")}')">
+      <div class="row-type ${typeClass(e.type)}">${e.type}</div>
+      <div class="row-main">
+        <div class="row-authors">${stripBraces(getAuthors(e))}</div>
+        <div class="row-title">${stripBraces(fmt(e,'title')) || '<em style="color:var(--text3)">(no title)</em>'}</div>
+        <div class="row-meta">
+          ${fmt(e,'year') ? `<span class="row-year">${fmt(e,'year')}</span>` : ''}
+          ${getVenue(e) ? `<span class="row-venue">${stripBraces(getVenue(e))}</span>` : ''}
+          ${jel ? `<span class="row-jel">${jel.split(/[;,\s]+/).slice(0,3).join(' ')}</span>` : ''}
+        </div>
+      </div>
+      <div class="row-key">${e.key}</div>
+    </div>`;
+  }
+  items.innerHTML = html;
+}
+
+// ════════════════════════════════════════════════════
+//  SIDEBAR FILTERS BUILD
+// ════════════════════════════════════════════════════
+function buildSidebarFilters() {
+  // Type counts
+  const counts = {};
+  entries.forEach(e => { counts[e.type] = (counts[e.type]||0)+1; });
+  const types = [['','All',entries.length],...Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([t,c])=>[t,t,c])];
+  const tf = document.getElementById('type-filters');
+  tf.innerHTML = types.map(([val,label,cnt]) => `
+    <div class="filter-opt${filterType===val?' active':''}" onclick="setTypeFilter('${val}')">
+      <span>${label}</span>
+      <span class="count">${cnt.toLocaleString()}</span>
+    </div>`).join('');
+
+  // JEL filter select
+  const jelSet = new Set();
+  entries.forEach(e => {
+    (fmt(e,'jel')||'').split(/[;,\s]+/).forEach(c => { if(c.length>=2) jelSet.add(c.trim().toUpperCase()); });
+  });
+  const jelSelect = document.getElementById('jel-filter');
+  const usedTop = [...jelSet].filter(c=>c.length===1).sort();
+  const usedSub = [...jelSet].filter(c=>c.length>=2).sort();
+  jelSelect.innerHTML = '<option value="">All JEL codes</option>'
+    + usedTop.map(c=>`<option value="${c}">${c} — ${JEL_MAP[c]||'Unknown'}</option>`).join('')
+    + usedSub.map(c=>`<option value="${c}">${c} — ${JEL_MAP[c]||''}</option>`).join('');
+
+  // LOC filter
+  const locSet = new Set();
+  entries.forEach(e => { const l=fmt(e,'lcc'); if(l) locSet.add(l.split(' ')[0]); });
+  const locSelect = document.getElementById('loc-filter');
+  locSelect.innerHTML = '<option value="">All LOC classes</option>'
+    + [...locSet].sort().map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+
+function setTypeFilter(val) {
+  filterType = val;
+  buildSidebarFilters();
+  runFilter();
+}
+
+// ════════════════════════════════════════════════════
+//  ENTRY DETAIL
+// ════════════════════════════════════════════════════
+function selectEntry(key) {
+  if (editing) return; // don't switch while editing
+  selected = key;
+  const e = entries.find(x => x.key === key);
+  if (!e) return;
+  renderVisible(); // refresh selection highlight
+  showDetail(e);
+}
+
+function showDetail(e) {
+  document.getElementById('detail-empty').style.display = 'none';
+  const dc = document.getElementById('detail-content');
+  dc.style.display = 'flex';
+  document.getElementById('edit-form').style.display = 'none';
+
+  document.getElementById('d-type').textContent = e.type;
+  document.getElementById('d-type').className = `detail-type-badge ${typeClass(e.type)}`;
+  document.getElementById('d-title').textContent = stripBraces(fmt(e,'title')) || '(no title)';
+  document.getElementById('d-authors').textContent = stripBraces(fmt(e,'author') || fmt(e,'editor') || '');
+  document.getElementById('d-year').textContent = fmt(e,'year') || '';
+
+  const fields = document.getElementById('detail-fields');
+  const rows = [];
+
+  const addField = (label, val, cls='') => {
+    if (!val) return;
+    rows.push(`<div class="field-row">
+      <div class="field-label">${label}</div>
+      <div class="field-value ${cls}">${val}</div>
+    </div>`);
+  };
+
+  const venue = getVenue(e);
+  if (venue) addField('Published in', stripBraces(venue), 'italic');
+  const vol = [fmt(e,'volume')&&'Vol. '+fmt(e,'volume'), fmt(e,'number')&&'No. '+fmt(e,'number'), fmt(e,'pages')&&'pp. '+fmt(e,'pages')].filter(Boolean).join(', ');
+  if (vol) addField('Volume / Pages', vol);
+  if (fmt(e,'publisher') && getVenue(e) !== fmt(e,'publisher')) addField('Publisher', stripBraces(fmt(e,'publisher')));
+  if (fmt(e,'address')) addField('Location', fmt(e,'address'));
+  if (fmt(e,'edition')) addField('Edition', fmt(e,'edition'));
+  if (fmt(e,'editor')) addField('Editor(s)', stripBraces(fmt(e,'editor')));
+
+  if (fmt(e,'doi')) rows.push(`<div class="field-row">
+    <div class="field-label">DOI</div>
+    <div class="field-value doi" onclick="window.open('https://doi.org/${fmt(e,'doi')}','_blank')">${fmt(e,'doi')}</div>
+  </div>`);
+  if (fmt(e,'isbn')) addField('ISBN', fmt(e,'isbn'), 'mono');
+  if (fmt(e,'url'))  addField('URL',  `<a href="${fmt(e,'url')}" target="_blank" style="color:var(--blue)">${fmt(e,'url').slice(0,50)}…</a>`);
+
+  // JEL
+  const jelCodes = (fmt(e,'jel')||'').split(/[;,\s]+/).filter(c=>c.length>=2);
+  if (jelCodes.length) {
+    rows.push(`<div class="field-row">
+      <div class="field-label">JEL Codes</div>
+      <div class="field-value">
+        <div class="jel-tags">${jelCodes.map(c=>`<span class="jel-tag" title="${JEL_MAP[c]||''}">${c}</span>`).join('')}</div>
+        ${jelCodes.map(c=>JEL_MAP[c]?`<div style="font-size:11px;color:var(--text3);margin-top:2px">${c}: ${JEL_MAP[c]}</div>`:'').join('')}
+      </div>
+    </div>`);
+  }
+
+  // LOC
+  if (fmt(e,'lcc')) {
+    const cls = fmt(e,'lcc');
+    const locName = LOC.find(([c])=>cls.startsWith(c));
+    rows.push(`<div class="field-row">
+      <div class="field-label">LOC Classification</div>
+      <div class="field-value"><span class="loc-tag">${cls}</span>${locName?` <span style="font-size:11px;color:var(--text3)">${locName[1]}</span>`:''}</div>
+    </div>`);
+  }
+
+  if (fmt(e,'keywords')) addField('Keywords', fmt(e,'keywords'));
+  if (fmt(e,'abstract')) rows.push(`<div class="field-row">
+    <div class="field-label">Abstract</div>
+    <div class="field-value abstract">${fmt(e,'abstract')}</div>
+  </div>`);
+  if (fmt(e,'note')) addField('Note', fmt(e,'note'));
+
+  // Datasource provenance
+  const ds = fmt(e,'datasource');
+  if (ds) {
+    const dsLabel = {crossref:'CrossRef',openlibrary:'Open Library',googlebooks:'Google Books',manual:'Manual'}[ds] || ds;
+    rows.push(`<div class="field-row" style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px;">
+      <div class="field-label">Data Source</div>
+      <div class="field-value"><span class="datasource-badge ${ds}">${dsLabel}</span></div>
+    </div>`);
+  }
+
+  // Citation key
+  rows.push(`<div class="field-row" style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px;">
+    <div class="field-label">Citation Key</div>
+    <div class="field-value mono">${e.key}</div>
+  </div>`);
+
+  fields.innerHTML = rows.join('');
+  updateBibtexPane();
+}
+
+// ════════════════════════════════════════════════════
+//  EDIT FORM
+// ════════════════════════════════════════════════════
+function toggleEdit() {
+  const e = entries.find(x => x.key === selected);
+  if (!e) return;
+  openEditForm(e, false);
+}
+
+function openEditForm(e, isNewEntry) {
+  isNew   = isNewEntry;
+  editing = JSON.parse(JSON.stringify(e)); // deep copy
+  editJel = (fmt(e,'jel')||'').split(/[;,\s]+/).filter(c=>c.length>=2);
+
+  document.getElementById('detail-content').style.display = 'none';
+  document.getElementById('detail-empty').style.display   = 'none';
+  document.getElementById('edit-form').style.display = 'flex';
+  document.getElementById('btn-edit').classList.add('editing');
+
+  // Populate form
+  document.getElementById('f-type').value   = e.type || 'article';
+  document.getElementById('f-key').value    = e.key  || '';
+  document.getElementById('f-title').value  = fmt(e,'title');
+  document.getElementById('f-author').value = fmt(e,'author');
+  document.getElementById('f-year').value   = fmt(e,'year');
+  document.getElementById('f-editor').value = fmt(e,'editor');
+  document.getElementById('doi-input').value = fmt(e,'doi');
+  document.getElementById('f-doi').value    = fmt(e,'doi');
+
+  const venue = fmt(e,'journal') || fmt(e,'booktitle');
+  document.getElementById('f-venue').value     = venue;
+  document.getElementById('f-volume').value    = fmt(e,'volume');
+  document.getElementById('f-number').value    = fmt(e,'number');
+  document.getElementById('f-pages').value     = fmt(e,'pages');
+  document.getElementById('f-edition').value   = fmt(e,'edition');
+  document.getElementById('f-publisher').value = fmt(e,'publisher');
+  document.getElementById('f-address').value   = fmt(e,'address');
+  document.getElementById('f-isbn').value      = fmt(e,'isbn');
+  document.getElementById('f-issn').value      = fmt(e,'issn');
+  document.getElementById('f-url').value       = fmt(e,'url');
+  document.getElementById('f-abstract').value  = fmt(e,'abstract');
+  document.getElementById('f-keywords').value  = fmt(e,'keywords');
+  document.getElementById('f-note').value      = fmt(e,'note');
+  setDatasource(fmt(e,'datasource') || 'manual');
+
+  const lcc = document.getElementById('f-lcc');
+  lcc.value = fmt(e,'lcc') || '';
+
+  renderJelSelected();
+  document.getElementById('jel-search').value = '';
+  renderJelList('');
+
+  // Reset suggestion strips
+  document.getElementById('jel-suggestions').classList.add('hidden');
+  document.getElementById('loc-suggestions').classList.add('hidden');
+  document.getElementById('jel-fetch-status').textContent = '';
+  document.getElementById('loc-suggest-status').textContent = '';
+
+  // Reset fetch panels back to DOI tab
+  // Also close the raw BibTeX pane while editing
+  bibtexPaneOpen = false;
+  document.getElementById('bibtex-raw').classList.remove('open');
+  document.getElementById('bibtex-toggle-arrow').classList.remove('open');
+  switchFetchTab('doi');
+  setFetchStatus('doi','');
+  setFetchStatus('isbn','');
+  setFetchStatus('title','');
+  document.getElementById('isbn-input').value = '';
+  document.getElementById('title-search-input').value = '';
+  document.getElementById('author-search-input').value = '';
+
+  // Set LOC button state for current entry type
+  onTypeChange();
+}
+
+function cancelEdit() {
+  editing = null; isNew = false; editJel = [];
+  document.getElementById('edit-form').style.display = 'none';
+  document.getElementById('btn-edit').classList.remove('editing');
+  if (selected) {
+    const e = entries.find(x=>x.key===selected);
+    if (e) { document.getElementById('detail-content').style.display='flex'; showDetail(e); }
+  } else {
+    document.getElementById('detail-empty').style.display='flex';
+  }
+}
+
+function saveEntry() {
+  const type   = document.getElementById('f-type').value;
+  const key    = document.getElementById('f-key').value.trim();
+  const title  = document.getElementById('f-title').value.trim();
+  const author = document.getElementById('f-author').value.trim();
+  const year   = document.getElementById('f-year').value.trim();
+
+  if (!key) { toast('Citation key is required.', 'error'); return; }
+  if (!title) { toast('Title is required.', 'error'); return; }
+
+  // Check for duplicate key on new entry
+  if (isNew && entries.find(x=>x.key===key)) {
+    toast('Citation key already exists.', 'error'); return;
+  }
+
+  const venue = document.getElementById('f-venue').value.trim();
+  const isArticle = type === 'article';
+
+  const fields = {
+    author, title, year,
+    editor:    document.getElementById('f-editor').value.trim(),
+    [isArticle?'journal':'booktitle']: venue,
+    publisher: document.getElementById('f-publisher').value.trim(),
+    address:   document.getElementById('f-address').value.trim(),
+    volume:    document.getElementById('f-volume').value.trim(),
+    number:    document.getElementById('f-number').value.trim(),
+    pages:     document.getElementById('f-pages').value.trim(),
+    edition:   document.getElementById('f-edition').value.trim(),
+    doi:       document.getElementById('f-doi').value.trim() || document.getElementById('doi-input').value.trim(),
+    isbn:      document.getElementById('f-isbn').value.trim(),
+    issn:      document.getElementById('f-issn').value.trim(),
+    url:       document.getElementById('f-url').value.trim(),
+    jel:       editJel.join('; '),
+    lcc:       document.getElementById('f-lcc').value,
+    abstract:  document.getElementById('f-abstract').value.trim(),
+    keywords:  document.getElementById('f-keywords').value.trim(),
+    note:      document.getElementById('f-note').value.trim(),
+    datasource: document.getElementById('f-datasource').value.trim(),
+  };
+
+  // Remove empty fields
+  for (const k in fields) { if (!fields[k]) delete fields[k]; }
+
+  if (isNew) {
+    entries.unshift({ type, key, fields });
+    toast('Entry added.', 'success');
+  } else {
+    const idx = entries.findIndex(x=>x.key===selected);
+    entries[idx] = { type, key, fields };
+    toast('Entry saved.', 'success');
+  }
+
+  selected = key;
+  document.getElementById('btn-export').disabled = false;
+  editing = null; isNew = false; editJel = [];
+  document.getElementById('btn-edit').classList.remove('editing');
+  document.getElementById('edit-form').style.display = 'none';
+
+  buildSidebarFilters();
+  runFilter();
+
+  // Show detail
+  const saved = entries.find(x=>x.key===key);
+  document.getElementById('detail-content').style.display='flex';
+  showDetail(saved);
+}
+
+function deleteEntry() {
+  if (!selected) return;
+  if (!confirm('Delete this entry? This cannot be undone.')) return;
+  entries = entries.filter(x=>x.key!==selected);
+  selected = null;
+  document.getElementById('detail-empty').style.display='flex';
+  document.getElementById('detail-content').style.display='none';
+  buildSidebarFilters();
+  runFilter();
+  toast('Entry deleted.', 'info');
+}
+
+function copyKey() {
+  if (!selected) return;
+  navigator.clipboard.writeText(selected).then(()=>toast('Citation key copied.','success'));
+}
+
+function copyBibEntry() {
+  if (!selected) return;
+  const e = entries.find(x=>x.key===selected);
+  if (!e) return;
+  navigator.clipboard.writeText(entryToBibTeX(e)).then(()=>toast('BibTeX entry copied.','success'));
+}
+
+// ════════════════════════════════════════════════════
+//  RAW BIBTEX PANE
+// ════════════════════════════════════════════════════
+let bibtexPaneOpen = false;
+
+function toggleBibtexPane() {
+  bibtexPaneOpen = !bibtexPaneOpen;
+  document.getElementById('bibtex-raw').classList.toggle('open', bibtexPaneOpen);
+  const arrow = document.getElementById('bibtex-toggle-arrow');
+  arrow.classList.toggle('open', bibtexPaneOpen);
+  // Render content lazily on first open
+  if (bibtexPaneOpen && selected) renderBibtexPane();
+}
+
+function renderBibtexPane() {
+  const e = entries.find(x => x.key === selected);
+  if (!e) return;
+  const raw = entryToBibTeX(e);
+  document.getElementById('bibtex-raw-content').innerHTML = highlightBibtex(raw);
+}
+
+function updateBibtexPane() {
+  // Called from showDetail — refreshes content if pane is open
+  if (bibtexPaneOpen) renderBibtexPane();
+}
+
+// Lightweight BibTeX syntax highlighter — no regex catastrophe risk, purely cosmetic
+function highlightBibtex(raw) {
+  const lines = raw.split('\n');
+  return lines.map((line, i) => {
+    // First line: @type{key,
+    if (i === 0) {
+      return line.replace(
+        /^(@)(\w+)(\{)([^,]+)(,)$/,
+        '<span class="bib-at">$1</span><span class="bib-type">$2</span>' +
+        '<span class="bib-brace">$3</span><span class="bib-key">$4</span>' +
+        '<span class="bib-brace">$5</span>'
+      );
+    }
+    // Last line: closing brace
+    if (line.trim() === '}') {
+      return '<span class="bib-brace">}</span>';
+    }
+    // Field lines:   fieldname     = {value},
+    const fieldMatch = line.match(/^(\s+)(\w+)(\s*=\s*)(\{)(.*?)(\},?)$/);
+    if (fieldMatch) {
+      const [, indent, field, eq, open, value, close] = fieldMatch;
+      return `${escHtml(indent)}<span class="bib-field">${escHtml(field)}</span>` +
+             `<span class="bib-brace">${escHtml(eq)}${escHtml(open)}</span>` +
+             `<span class="bib-value">${escHtml(value)}</span>` +
+             `<span class="bib-brace">${escHtml(close)}</span>`;
+    }
+    return escHtml(line);
+  }).join('\n');
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ════════════════════════════════════════════════════
+//  JEL PICKER
+// ════════════════════════════════════════════════════
+function filterJelList() {
+  renderJelList(document.getElementById('jel-search').value);
+}
+
+function renderJelList(q) {
+  const q2 = q.toLowerCase();
+  const list = document.getElementById('jel-list');
+  const items = JEL.filter(([code, desc]) => {
+    if (!q2) return true;
+    return code.toLowerCase().includes(q2) || desc.toLowerCase().includes(q2);
+  }).slice(0, 60);
+
+  list.innerHTML = items.map(([code, desc]) => {
+    const sel = editJel.includes(code) ? ' selected' : '';
+    const isHeader = code.length === 1;
+    if (isHeader && !q2) {
+      return `<div class="jel-item" style="background:var(--surface3);cursor:default;pointer-events:none;">
+        <span class="jel-code" style="color:var(--amber)">${code}</span>
+        <span style="color:var(--text2);font-size:10.5px;">${desc}</span>
+      </div>`;
+    }
+    return `<div class="jel-item${sel}" onclick="toggleJel('${code}')">
+      <span class="jel-code">${code}</span>
+      <span class="jel-desc">${desc}</span>
+    </div>`;
+  }).join('');
+}
+
+function toggleJel(code) {
+  if (editJel.includes(code)) {
+    editJel = editJel.filter(c=>c!==code);
+  } else {
+    editJel.push(code);
+  }
+  renderJelSelected();
+  renderJelList(document.getElementById('jel-search').value);
+}
+
+function renderJelSelected() {
+  const wrap = document.getElementById('jel-selected-tags');
+  wrap.innerHTML = editJel.map(c=>`
+    <span class="jel-sel-tag" onclick="toggleJel('${c}')" title="Click to remove">
+      ${c} <span style="opacity:.6">×</span>
+    </span>`).join('');
+}
+
+// ════════════════════════════════════════════════════
+//  LOC SELECT BUILD
+// ════════════════════════════════════════════════════
+function buildLocSelect(selId) {
+  const sel = document.getElementById(selId);
+  sel.innerHTML = '<option value="">— select class —</option>'
+    + LOC.map(([c,desc]) => `<option value="${c}">${c} — ${desc}</option>`).join('');
+}
+
+// ════════════════════════════════════════════════════
+//  THEME TOGGLE
+// ════════════════════════════════════════════════════
+let isDark = true;
+function toggleTheme() {
+  isDark = !isDark;
+  document.documentElement.classList.toggle('light', !isDark);
+  document.getElementById('theme-icon-dark').style.display  = isDark ? '' : 'none';
+  document.getElementById('theme-icon-light').style.display = isDark ? 'none' : '';
+  try { localStorage.setItem('jrl-theme', isDark ? 'dark' : 'light'); } catch(e){}
+}
+function initTheme() {
+  try {
+    const saved = localStorage.getItem('jrl-theme');
+    if (saved === 'light') { isDark = false; document.documentElement.classList.add('light');
+      document.getElementById('theme-icon-dark').style.display = 'none';
+      document.getElementById('theme-icon-light').style.display = ''; }
+  } catch(e){}
+}
+
+// ════════════════════════════════════════════════════
+//  FETCH METADATA — SHARED UTILITIES
+// ════════════════════════════════════════════════════
+function switchFetchTab(tab) {
+  ['doi','isbn','title'].forEach(t => {
+    document.getElementById('ftab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('fpanel-'+t).classList.toggle('active', t===tab);
+  });
+}
+
+// Shared form populate — writes all fields and sets datasource provenance
+function populateForm(fields, datasource) {
+  const {type='', key='', title='', author='', year='', editor='',
+    journal='', booktitle='', publisher='', address='', volume='', number='',
+    pages='', edition='', doi='', isbn='', issn='', url='',
+    abstract='', keywords='', lcc=''} = fields;
+
+  if (type)      document.getElementById('f-type').value      = type;
+  if (key)       document.getElementById('f-key').value       = key;
+  if (title)     document.getElementById('f-title').value     = title;
+  if (author)    document.getElementById('f-author').value    = author;
+  if (year)      document.getElementById('f-year').value      = year;
+  if (editor)    document.getElementById('f-editor').value    = editor;
+  const venueVal = journal || booktitle;
+  if (venueVal)  document.getElementById('f-venue').value     = venueVal;
+  if (publisher) document.getElementById('f-publisher').value = publisher;
+  if (address)   document.getElementById('f-address').value   = address;
+  if (volume)    document.getElementById('f-volume').value    = volume;
+  if (number)    document.getElementById('f-number').value    = number;
+  if (pages)     document.getElementById('f-pages').value     = pages;
+  if (edition)   document.getElementById('f-edition').value   = edition;
+  if (doi)       { document.getElementById('f-doi').value     = doi;
+                   document.getElementById('doi-input').value = doi; }
+  if (isbn)      document.getElementById('f-isbn').value      = isbn;
+  if (issn)      document.getElementById('f-issn').value      = issn;
+  if (url)       document.getElementById('f-url').value       = url;
+  if (abstract)  document.getElementById('f-abstract').value  = abstract;
+  if (keywords)  document.getElementById('f-keywords').value  = keywords;
+  if (lcc)       document.getElementById('f-lcc').value       = lcc;
+
+  setDatasource(datasource);
+  onTypeChange(); // update LOC button state
+}
+
+function setDatasource(ds) {
+  document.getElementById('f-datasource').value = ds;
+  const row   = document.getElementById('datasource-row');
+  const badge = document.getElementById('datasource-badge-display');
+  if (!ds || ds === 'manual') { row.style.display = 'none'; return; }
+  const labels = {crossref:'CrossRef',openlibrary:'Open Library',googlebooks:'Google Books'};
+  badge.innerHTML = `<span class="datasource-badge ${ds}">${labels[ds]||ds}</span>`;
+  row.style.display = 'flex';
+}
+
+function setFetchStatus(panel, msg, type='') {
+  const el = document.getElementById(panel+'-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'fetch-status' + (type ? ' '+type : '');
+}
+
+// ════════════════════════════════════════════════════
+//  CROSSREF / DOI LOOKUP
+// ════════════════════════════════════════════════════
+async function doiLookup() {
+  const raw = document.getElementById('doi-input').value.trim();
+  if (!raw) return;
+  const doi = raw.replace(/^https?:\/\/(dx\.)?doi\.org\//i,'').trim();
+  const btn = document.getElementById('doi-btn');
+  btn.textContent = 'Loading…'; btn.disabled = true;
+  setFetchStatus('doi','Querying CrossRef…');
+  try {
+    const msg = await crossRefLookup(doi);
+    const e = crossRefToEntry(msg, doi);
+    populateForm({...e.fields, type:e.type, key:e.key}, 'crossref');
+    setFetchStatus('doi', `✓ Found: ${stripBraces(e.fields.title||'').slice(0,50)}`, 'ok');
+    toast('Metadata loaded from CrossRef.','success');
+  } catch(err) {
+    setFetchStatus('doi', '✗ ' + err.message, 'err');
+    toast('DOI lookup failed: '+err.message,'error');
+  }
+  btn.textContent = 'CrossRef ↗'; btn.disabled = false;
+}
+
+async function crossRefLookup(doi) {
+  const r = await fetch(`https://api.crossref.org/works/${encodeURIComponent(doi)}`);
+  if (!r.ok) throw new Error('Not found in CrossRef');
+  const j = await r.json();
+  return j.message;
+}
+
+function crossRefToEntry(msg, doi) {
+  const title   = (msg.title||[])[0] || '';
+  const authors = (msg.author||[]).map(a=>`${a.family||''},${a.given?` ${a.given}`:''}`).join(' and ');
+  const year    = String(((msg.published||msg['published-print']||msg['published-online']||{})['date-parts']||[['']])[0][0]||'');
+  const journal = (msg['container-title']||[])[0] || '';
+  const publisher = msg.publisher || '';
+  const type    = msg.type==='journal-article'?'article':msg.type==='book'?'book':'misc';
+  const isbn    = (msg.ISBN||[]).join(', ');
+  const issn    = (msg.ISSN||[]).join(', ');
+  const vol     = msg.volume||'';
+  const num     = msg.issue||'';
+  const pages   = msg.page||'';
+  const abstract = msg.abstract ? msg.abstract.replace(/<[^>]+>/g,'') : '';
+  const url     = msg.URL||'';
+  const key     = makeKey(authors, year, title);
+  const fields  = { title, author:authors, year,
+    ...(type==='article'?{journal}:{booktitle:journal}),
+    publisher, volume:vol, number:num, pages, doi, isbn, issn, url, abstract };
+  for (const k in fields) { if (!fields[k]) delete fields[k]; }
+  return { type, key, fields };
+}
+
+// Legacy compat — called from modal
+function populateFormFromCrossRef(msg, doi) {
+  const e = crossRefToEntry(msg, doi);
+  populateForm({...e.fields, type:e.type, key:e.key}, 'crossref');
+}
+
+// ════════════════════════════════════════════════════
+//  OPEN LIBRARY — ISBN LOOKUP
+// ════════════════════════════════════════════════════
+async function isbnLookup() {
+  const raw = document.getElementById('isbn-input').value.trim().replace(/[-\s]/g,'');
+  if (!raw) { setFetchStatus('isbn','Enter an ISBN first.','err'); return; }
+  const btn = document.getElementById('isbn-ol-btn');
+  btn.textContent = 'Loading…'; btn.disabled = true;
+  setFetchStatus('isbn','Querying Open Library…');
+  try {
+    const fields = await openLibraryByIsbn(raw);
+    if (!isSparse(fields)) {
+      populateForm(fields, 'openlibrary');
+      setFetchStatus('isbn', `✓ Open Library: ${stripBraces(fields.title||'').slice(0,50)}`, 'ok');
+      toast('Metadata from Open Library.','success');
+    } else {
+      // Sparse result — try Google Books
+      setFetchStatus('isbn','Open Library sparse — trying Google Books…');
+      const gbFields = await googleBooksIsbn(raw);
+      const merged = mergeFields(fields, gbFields);
+      populateForm(merged, isSparse(fields) ? 'googlebooks' : 'openlibrary');
+      setFetchStatus('isbn', `✓ Google Books fallback: ${stripBraces(merged.title||'').slice(0,50)}`, 'ok');
+      toast('Metadata from Google Books (Open Library sparse).','info');
+    }
+  } catch(err) {
+    setFetchStatus('isbn','Open Library failed — trying Google Books…');
+    try {
+      const gbFields = await googleBooksIsbn(raw);
+      populateForm(gbFields, 'googlebooks');
+      setFetchStatus('isbn', `✓ Google Books: ${stripBraces(gbFields.title||'').slice(0,50)}`, 'ok');
+      toast('Metadata from Google Books.','success');
+    } catch(err2) {
+      setFetchStatus('isbn','✗ Both sources failed. Try WorldCat →','err');
+      toast('Lookup failed on both APIs.','error');
+    }
+  }
+  btn.textContent = 'Open Library ↗'; btn.disabled = false;
+}
+
+async function openLibraryByIsbn(isbn) {
+  const r = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`);
+  if (!r.ok) throw new Error('Open Library HTTP ' + r.status);
+  const j = await r.json();
+  const key = Object.keys(j)[0];
+  if (!key) throw new Error('Not found in Open Library');
+  const d = j[key];
+
+  const title    = d.title || '';
+  const subtitle = d.subtitle || '';
+  const fullTitle = subtitle ? `${title}: ${subtitle}` : title;
+  const author   = (d.authors||[]).map(a=>a.name||'').filter(Boolean).join(' and ');
+  const year     = String(d.publish_date || '').match(/\d{4}/)?.[0] || '';
+  const publisher= (d.publishers||[]).map(p=>p.name||'').join(', ');
+  const address  = (d.publish_places||[]).map(p=>p.name||'').join(', ');
+  const isbn13   = (d.identifiers?.isbn_13||[])[0] || (d.identifiers?.isbn_10||[])[0] || isbn;
+  const url      = d.url || '';
+  const lcc      = (d.classifications?.lc_classifications||[])[0] || '';
+  const subjects = (d.subjects||[]).map(s=>s.name||s||'').slice(0,5).join(', ');
+  const pages    = d.number_of_pages ? String(d.number_of_pages) : '';
+  const edition  = d.edition_name || '';
+  const key2     = makeKey(author, year, fullTitle);
+
+  return { type:'book', key:key2, title:fullTitle, author, year, publisher, address,
+    isbn:isbn13, url, lcc, keywords:subjects, pages, edition };
+}
+
+// ════════════════════════════════════════════════════
+//  GOOGLE BOOKS — ISBN + TITLE SEARCH
+// ════════════════════════════════════════════════════
+async function googleBooksIsbnLookup() {
+  const raw = document.getElementById('isbn-input').value.trim().replace(/[-\s]/g,'');
+  if (!raw) { setFetchStatus('isbn','Enter an ISBN first.','err'); return; }
+  const btn = document.getElementById('isbn-gb-btn');
+  btn.textContent = 'Loading…'; btn.disabled = true;
+  setFetchStatus('isbn','Querying Google Books…');
+  try {
+    const fields = await googleBooksIsbn(raw);
+    populateForm(fields, 'googlebooks');
+    setFetchStatus('isbn', `✓ Google Books: ${stripBraces(fields.title||'').slice(0,50)}`, 'ok');
+    toast('Metadata from Google Books.','success');
+  } catch(err) {
+    setFetchStatus('isbn','✗ '+err.message,'err');
+  }
+  btn.textContent = 'Google Books ↗'; btn.disabled = false;
+}
+
+async function googleBooksIsbn(isbn) {
+  const r = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&maxResults=1`);
+  if (!r.ok) throw new Error('Google Books HTTP '+r.status);
+  const j = await r.json();
+  if (!j.items?.length) throw new Error('Not found in Google Books');
+  return parseGoogleBook(j.items[0]);
+}
+
+async function titleSearchOpenLibrary() {
+  const title  = document.getElementById('title-search-input').value.trim();
+  const author = document.getElementById('author-search-input').value.trim();
+  if (!title) { setFetchStatus('title','Enter a title first.','err'); return; }
+  const btn = document.getElementById('title-ol-btn');
+  btn.textContent = 'Loading…'; btn.disabled = true;
+  setFetchStatus('title','Searching Open Library…');
+  try {
+    const q = encodeURIComponent(title + (author?' '+author:''));
+    const r = await fetch(`https://openlibrary.org/search.json?q=${q}&limit=1&fields=key,title,author_name,first_publish_year,publisher,isbn,subject,lcc`);
+    if (!r.ok) throw new Error('Open Library HTTP '+r.status);
+    const j = await r.json();
+    if (!j.docs?.length) throw new Error('No results');
+    const d = j.docs[0];
+    const isbn = (d.isbn||[])[0] || '';
+    // If we have an ISBN, do full lookup for richer data
+    if (isbn) {
+      const full = await openLibraryByIsbn(isbn.replace(/[-\s]/g,''));
+      populateForm(full, 'openlibrary');
+      setFetchStatus('title', `✓ Open Library: ${(d.title||'').slice(0,50)}`, 'ok');
+    } else {
+      const authorStr = (d.author_name||[]).join(' and ');
+      const yr = String(d.first_publish_year||'');
+      const fields = { type:'book', key:makeKey(authorStr,yr,d.title||''),
+        title:d.title||'', author:authorStr, year:yr,
+        publisher:(d.publisher||[])[0]||'',
+        keywords:(d.subject||[]).slice(0,5).join(', '),
+        lcc:(d.lcc||[])[0]||'' };
+      populateForm(fields, 'openlibrary');
+      setFetchStatus('title', `✓ Open Library: ${(d.title||'').slice(0,50)}`, 'ok');
+    }
+    toast('Metadata from Open Library.','success');
+  } catch(err) {
+    setFetchStatus('title','✗ '+err.message,'err');
+  }
+  btn.textContent = 'Open Library ↗'; btn.disabled = false;
+}
+
+async function titleSearchGoogleBooks() {
+  const title  = document.getElementById('title-search-input').value.trim();
+  const author = document.getElementById('author-search-input').value.trim();
+  if (!title) { setFetchStatus('title','Enter a title first.','err'); return; }
+  const btn = document.getElementById('title-gb-btn');
+  btn.textContent = 'Loading…'; btn.disabled = true;
+  setFetchStatus('title','Searching Google Books…');
+  try {
+    const q = 'intitle:'+encodeURIComponent(title)+(author?'+inauthor:'+encodeURIComponent(author):'');
+    const r = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=1`);
+    if (!r.ok) throw new Error('Google Books HTTP '+r.status);
+    const j = await r.json();
+    if (!j.items?.length) throw new Error('No results');
+    const fields = parseGoogleBook(j.items[0]);
+    populateForm(fields, 'googlebooks');
+    setFetchStatus('title', `✓ Google Books: ${stripBraces(fields.title||'').slice(0,50)}`, 'ok');
+    toast('Metadata from Google Books.','success');
+  } catch(err) {
+    setFetchStatus('title','✗ '+err.message,'err');
+  }
+  btn.textContent = 'Google Books ↗'; btn.disabled = false;
+}
+
+function parseGoogleBook(item) {
+  const v = item.volumeInfo || {};
+  const title     = v.title || '';
+  const subtitle  = v.subtitle || '';
+  const fullTitle = subtitle ? `${title}: ${subtitle}` : title;
+  const authors   = (v.authors||[]).join(' and ');
+  const year      = (v.publishedDate||'').slice(0,4);
+  const publisher = v.publisher || '';
+  const isbn13    = (v.industryIdentifiers||[]).find(x=>x.type==='ISBN_13')?.identifier || '';
+  const isbn10    = (v.industryIdentifiers||[]).find(x=>x.type==='ISBN_10')?.identifier || '';
+  const isbn      = isbn13 || isbn10;
+  const pages     = v.pageCount ? String(v.pageCount) : '';
+  const abstract  = v.description ? v.description.replace(/<[^>]+>/g,'') : '';
+  const keywords  = (v.categories||[]).join(', ');
+  const url       = v.infoLink || '';
+  const key       = makeKey(authors, year, fullTitle);
+  return { type:'book', key, title:fullTitle, author:authors, year, publisher,
+    isbn, pages, abstract, keywords, url };
+}
+
+// Merge two field objects — prefer non-empty values from primary, fill gaps from secondary
+function mergeFields(primary, secondary) {
+  const merged = {...secondary};
+  for (const [k,v] of Object.entries(primary)) { if (v) merged[k] = v; }
+  return merged;
+}
+
+// Sparse = missing title or author
+function isSparse(fields) {
+  return !fields.title || !fields.author;
+}
+
+// ════════════════════════════════════════════════════
+//  WORLDCAT LINK-OUT
+// ════════════════════════════════════════════════════
+function openWorldCat() {
+  // Build query from whatever is currently in the form
+  const title  = document.getElementById('f-title')?.value ||
+                 document.getElementById('title-search-input')?.value || '';
+  const author = document.getElementById('f-author')?.value ||
+                 document.getElementById('author-search-input')?.value || '';
+  const isbn   = document.getElementById('f-isbn')?.value ||
+                 document.getElementById('isbn-input')?.value || '';
+
+  let url;
+  if (isbn) {
+    const isbnClean = isbn.replace(/[-\s]/g,'');
+    url = `https://www.worldcat.org/search?q=isbn%3A${isbnClean}`;
+  } else {
+    const q = encodeURIComponent([title, author].filter(Boolean).join(' '));
+    url = `https://www.worldcat.org/search?q=${q}`;
+  }
+  window.open(url, '_blank', 'noopener');
+  toast('WorldCat search opened in new tab.','info');
+}
+
+// ════════════════════════════════════════════════════
+//  MODAL DOI LOOKUP (quick add)
+// ════════════════════════════════════════════════════
+let pendingDoiEntry = null;
+
+async function modalDoiLookup() {
+  const raw = document.getElementById('modal-doi').value.trim();
+  if (!raw) return;
+  const doi = raw.replace(/^https?:\/\/(dx\.)?doi\.org\//i,'').trim();
+  const btn = document.getElementById('modal-doi-btn');
+  btn.textContent = 'Loading…'; btn.disabled = true;
+  const resultDiv = document.getElementById('modal-doi-result');
+  resultDiv.style.display = 'none';
+  try {
+    const msg = await crossRefLookup(doi);
+    pendingDoiEntry = crossRefToEntry(msg, doi);
+    const title = pendingDoiEntry.fields.title || '(no title)';
+    const author = pendingDoiEntry.fields.author || '';
+    const year   = pendingDoiEntry.fields.year || '';
+    const venue  = pendingDoiEntry.fields.journal || pendingDoiEntry.fields.booktitle || '';
+    resultDiv.innerHTML = `<strong style="color:var(--text);font-family:var(--display)">${title}</strong><br>
+      <span style="color:var(--text3)">${author}</span><br>
+      <span style="color:var(--amber)">${year}</span>${venue?` · <em>${venue}</em>`:''}<br>
+      <span style="font-family:var(--mono);font-size:10px;color:var(--text3)">Key: ${pendingDoiEntry.key}</span>`;
+    resultDiv.style.display = 'block';
+    document.getElementById('modal-doi-save').disabled = false;
+    toast('Metadata found.','success');
+  } catch(e) {
+    resultDiv.innerHTML = `<span style="color:var(--red)">DOI not found in CrossRef. Check the DOI and try again.</span>`;
+    resultDiv.style.display = 'block';
+    pendingDoiEntry = null;
+    document.getElementById('modal-doi-save').disabled = true;
+  }
+  btn.textContent = 'Fetch ↗'; btn.disabled = false;
+}
+
+function saveDoiEntry() {
+  if (!pendingDoiEntry) return;
+  // Stamp provenance
+  pendingDoiEntry.fields.datasource = 'crossref';
+  // Check for duplicate key
+  let key = pendingDoiEntry.key;
+  let suffix = 1;
+  while (entries.find(x=>x.key===key)) { key = pendingDoiEntry.key + String.fromCharCode(96+suffix); suffix++; }
+  pendingDoiEntry.key = key;
+  entries.unshift(pendingDoiEntry);
+  selected = key;
+  closeModal('doi-modal');
+  document.getElementById('btn-export').disabled = false;
+  buildSidebarFilters();
+  runFilter();
+  const e = entries.find(x=>x.key===key);
+  document.getElementById('detail-content').style.display='flex';
+  document.getElementById('detail-empty').style.display='none';
+  showDetail(e);
+  toast('Entry added via DOI.','success');
+  pendingDoiEntry = null;
+}
+
+// ════════════════════════════════════════════════════
+//  NEW ENTRY
+// ════════════════════════════════════════════════════
+function openNewEntry() {
+  if (entries.length === 0 && document.getElementById('no-file').style.display !== 'none') {
+    startFresh();
+  }
+  const blank = { type:'article', key:'', fields:{} };
+  editing = blank;
+  selected = null;
+  openEditForm(blank, true);
+}
+
+function startFresh() {
+  entries = []; filtered = [];
+  showLibrary();
+  document.getElementById('btn-export').disabled = false;
+  document.getElementById('entry-count').textContent = '0 entries';
+  buildSidebarFilters();
+  runFilter();
+}
+
+// ════════════════════════════════════════════════════
+//  AUTO-LOAD FROM REPO PATH
+// ════════════════════════════════════════════════════
+async function autoLoadLibrary() {
+  const path = BIBFORGE_CONFIG.autoLoad;
+  if (!path) return; // disabled — show manual import screen
+
+  const label    = BIBFORGE_CONFIG.autoLoadLabel || path.split('/').pop();
+  const statusEl = document.getElementById('autoload-status');
+  const msgEl    = document.getElementById('autoload-msg');
+  const spinner  = document.getElementById('autoload-spinner');
+  const subEl    = document.getElementById('drop-zone-sub');
+
+  // Update the drop-zone hint to show the configured path
+  subEl.innerHTML = `Auto-loading <span class="autoload-path">${label}</span> from repository…`;
+
+  // Show status strip
+  statusEl.classList.add('visible');
+  statusEl.classList.remove('ok','fail');
+  msgEl.innerHTML = `Fetching <span class="autoload-path">${path}</span>…`;
+
+  const pb = document.getElementById('progress-bar');
+  pb.style.display = 'block'; pb.style.width = '20%';
+
+  try {
+    const response = await fetch(path, { cache: 'no-cache' });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} — file not found at ${path}`);
+    }
+
+    pb.style.width = '60%';
+    const text = await response.text();
+    pb.style.width = '80%';
+
+    entries = parseBibTeX(text);
+    pb.style.width = '95%';
+
+    selected = null; editing = null;
+    showLibrary();
+    buildSidebarFilters();
+    runFilter();
+    document.getElementById('btn-export').disabled = false;
+
+    // Success state
+    spinner.style.display = 'none';
+    statusEl.classList.add('ok');
+    msgEl.innerHTML = `✓ Loaded <strong>${entries.length.toLocaleString()}</strong> entries from <span class="autoload-path">${label}</span>`;
+    subEl.innerHTML = `Auto-loaded from <span class="autoload-path">${path}</span> · <span style="cursor:pointer;text-decoration:underline" onclick="triggerImport()">load a different file</span>`;
+
+    toast(`Auto-loaded ${entries.length.toLocaleString()} entries from ${label}.`, 'success');
+
+  } catch (err) {
+    // Graceful fallback — show manual import screen as normal
+    spinner.style.display = 'none';
+    statusEl.classList.add('fail');
+    msgEl.innerHTML = `Could not auto-load <span class="autoload-path">${label}</span> — ${err.message.includes('HTTP') ? err.message : 'file not found or path incorrect'}`;
+    subEl.textContent = 'Or start fresh and add entries manually via DOI lookup';
+
+    console.warn(`BibForge auto-load: could not fetch "${path}". ` +
+      `Check BIBFORGE_CONFIG.autoLoad in the script. Error: ${err.message}`);
+  }
+
+  pb.style.width = '100%';
+  setTimeout(() => { pb.style.display = 'none'; pb.style.width = '0%'; }, 500);
+}
+
+// ════════════════════════════════════════════════════
+//  FILE IMPORT / EXPORT
+// ════════════════════════════════════════════════════
+function triggerImport() {
+  document.getElementById('file-input').click();
+}
+
+function handleFileImport(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const pb = document.getElementById('progress-bar');
+  pb.style.display = 'block'; pb.style.width = '0%';
+
+  const reader = new FileReader();
+  reader.onprogress = e => { if (e.lengthComputable) pb.style.width = (e.loaded/e.total*60)+'%'; };
+  reader.onload = ev => {
+    pb.style.width = '70%';
+    try {
+      entries = parseBibTeX(ev.target.result);
+      pb.style.width = '90%';
+      selected = null; editing = null;
+      showLibrary();
+      buildSidebarFilters();
+      runFilter();
+      document.getElementById('btn-export').disabled = false;
+      toast(`Loaded ${entries.length.toLocaleString()} entries from ${file.name}.`,'success');
+    } catch(e) {
+      toast('Error parsing BibTeX: '+e.message,'error');
+    }
+    pb.style.width = '100%';
+    setTimeout(()=>{ pb.style.display='none'; pb.style.width='0%'; }, 500);
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+function showLibrary() {
+  document.getElementById('no-file').style.display = 'none';
+  document.getElementById('list-header').classList.remove('hidden');
+  document.getElementById('list-scroll').classList.remove('hidden');
+}
+
+function exportBib() {
+  const content = exportBibTeX(entries);
+  const blob = new Blob([content], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'library_export.bib';
+  a.click();
+  toast(`Exported ${entries.length.toLocaleString()} entries.`,'success');
+}
+
+// ════════════════════════════════════════════════════
+//  MODAL HELPERS
+// ════════════════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ════════════════════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════════════════════
+function toast(msg, type='info') {
+  const wrap = document.getElementById('toast-wrap');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
+// ════════════════════════════════════════════════════
+//  JEL FETCH & SUGGESTION ENGINE
+// ════════════════════════════════════════════════════
+
+// Cache for the fetched AEA JEL tree
+let aeaJelTree = null;  // [{code, description, keywords:[]}]
+
+const STOP_WORDS = new Set([
+  'a','an','the','and','or','of','in','to','for','with','on','at','by','from',
+  'as','is','are','was','were','be','been','being','have','has','had','do','does',
+  'did','will','would','could','should','may','might','shall','can','its','their',
+  'this','that','these','those','it','he','she','they','we','i','you',
+  'other','general','including','related','special','various','specific','analysis',
+  'issues','topics','models','methods','studies','effects','approach','aspects',
+  'theory','theories','economics','economic','markets','market','sector','system',
+]);
+
+// Tokenize text into meaningful lowercase words
+function tokenize(text) {
+  return (text || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter(w => w.length > 2 && !STOP_WORDS.has(w));
+}
+
+// Score a JEL/LOC description against entry text tokens
+function scoreDesc(descTokens, corpusTokenSet, corpusTokens) {
+  let score = 0;
+  for (const dt of descTokens) {
+    if (corpusTokenSet.has(dt)) {
+      // Exact match bonus, weighted by specificity (longer token = rarer = more specific)
+      score += 1 + Math.min(dt.length - 2, 4) * 0.4;
+    } else {
+      // Partial substring match (e.g. "urban" in "urbanization")
+      for (const ct of corpusTokens) {
+        if (ct.length > 4 && (ct.includes(dt) || dt.includes(ct))) {
+          score += 0.4;
+          break;
+        }
+      }
+    }
+  }
+  return score;
+}
+
+// Parse the AEA XML classification tree into a flat list of leaf codes
+function parseAeaXml(xmlText) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(xmlText, 'application/xml');
+  const codes = [];
+
+  function walk(el, parentCode) {
+    const code = el.getAttribute('code') || el.getAttribute('id') || '';
+    const desc = el.getAttribute('description') || el.getAttribute('name') || el.textContent?.split('\n')[0]?.trim() || '';
+    const children = [...el.children].filter(c =>
+      c.tagName === 'classification' || c.tagName === 'category' || c.tagName === 'subCategory' || c.tagName === 'item'
+    );
+    if (code && desc) {
+      codes.push({ code: code.trim(), description: desc.trim() });
+    }
+    children.forEach(child => walk(child, code));
+  }
+
+  // Try common root element names
+  const roots = doc.querySelectorAll('classification, category, subCategory, JELClassification, classificationCode');
+  if (roots.length === 0) {
+    // Try walking the document element's children
+    [...doc.documentElement.children].forEach(el => walk(el, ''));
+  } else {
+    roots.forEach(r => walk(r, ''));
+  }
+
+  // Deduplicate
+  const seen = new Set();
+  return codes.filter(c => {
+    if (seen.has(c.code)) return false;
+    seen.add(c.code);
+    return true;
+  });
+}
+
+// Fetch AEA classification tree, with fallback to built-in JEL data
+async function fetchAeaTree() {
+  if (aeaJelTree) return aeaJelTree; // cached
+
+  const setStatus = (msg, color) => {
+    const el = document.getElementById('jel-fetch-status');
+    if (el) { el.textContent = msg; el.style.color = color || 'var(--text3)'; }
+  };
+
+  setStatus('fetching AEA tree…');
+  try {
+    const r = await fetch('https://www.aeaweb.org/econlit/classificationTree.xml', {
+      mode: 'cors', cache: 'force-cache'
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const xml = await r.text();
+    const parsed = parseAeaXml(xml);
+    if (parsed.length < 20) throw new Error('parse failed — too few codes');
+    aeaJelTree = parsed;
+    setStatus(`AEA tree: ${parsed.length} codes`, 'var(--green)');
+    return aeaJelTree;
+  } catch(err) {
+    // CORS or network failure — fall back to built-in JEL table
+    setStatus('using built-in (CORS blocked AEA)', 'var(--amber)');
+    aeaJelTree = JEL
+      .filter(([code]) => code.length >= 2)                  // skip single-letter headers
+      .map(([code, description]) => ({ code, description }));
+    return aeaJelTree;
+  }
+}
+
+// Main: suggest top-3 JEL codes for the current entry in the edit form
+async function suggestJEL() {
+  const btn = document.getElementById('jel-suggest-btn');
+  btn.disabled = true; btn.classList.add('loading');
+
+  const strip = document.getElementById('jel-suggestions');
+  const chips = document.getElementById('jel-suggestion-chips');
+  const basis = document.getElementById('jel-suggest-basis');
+  strip.classList.remove('hidden');
+  chips.innerHTML = '<span style="font-family:var(--mono);font-size:10px;color:var(--text3)">Analyzing entry…</span>';
+
+  // Gather corpus from the edit form
+  const title    = document.getElementById('f-title').value;
+  const author   = document.getElementById('f-author').value;
+  const venue    = document.getElementById('f-venue').value;
+  const keywords = document.getElementById('f-keywords').value;
+  const abstract = document.getElementById('f-abstract').value;
+
+  if (!title && !keywords && !abstract) {
+    chips.innerHTML = '<span style="font-family:var(--mono);font-size:10px;color:var(--red)">Fill in title, keywords, or abstract first.</span>';
+    btn.disabled = false; btn.classList.remove('loading');
+    return;
+  }
+
+  const corpus = [title, venue, keywords, abstract].join(' ');
+  const corpusTokens = tokenize(corpus);
+  const corpusTokenSet = new Set(corpusTokens);
+
+  try {
+    const tree = await fetchAeaTree();
+
+    // Score every leaf code (length ≥ 2) — prefer 3-char specificity
+    const scored = tree
+      .filter(c => c.code.length >= 2)
+      .map(c => {
+        const descTokens = tokenize(c.description);
+        let score = scoreDesc(descTokens, corpusTokenSet, corpusTokens);
+        // Bonus for 3-char specificity
+        if (c.code.length === 3) score *= 1.3;
+        if (c.code.length === 2) score *= 1.0;
+        // Penalty if already selected
+        if (editJel.includes(c.code)) score = -1;
+        return { ...c, score, descTokens };
+      })
+      .filter(c => c.score > 0)
+      .sort((a, b) => b.score - a.score);
+
+    const top3 = scored.slice(0, 3);
+
+    if (!top3.length) {
+      chips.innerHTML = '<span style="font-family:var(--mono);font-size:10px;color:var(--text3)">No strong matches found — try adding more keywords or abstract.</span>';
+      basis.textContent = '';
+    } else {
+      const rankLabels = ['1st', '2nd', '3rd'];
+      chips.innerHTML = top3.map((c, i) => `
+        <div class="suggest-chip" id="jchip-${c.code}" onclick="acceptJelSuggestion('${c.code}', '${c.description.replace(/'/g,"\\'")}')">
+          <span class="suggest-chip-code">${c.code}</span>
+          <span class="suggest-chip-desc">${c.description}</span>
+          <span class="suggest-chip-rank">${rankLabels[i]}</span>
+          <span class="suggest-chip-add">+ add</span>
+        </div>`).join('');
+
+      // Show matched tokens as basis
+      const matchedTerms = [...new Set(top3.flatMap(c => c.descTokens.filter(t => corpusTokenSet.has(t))))].slice(0, 8);
+      basis.textContent = matchedTerms.length
+        ? 'Matched on: ' + matchedTerms.join(', ')
+        : 'Source: ' + (aeaJelTree.length > 50 ? 'AEA EconLit tree' : 'built-in JEL table');
+    }
+  } catch(e) {
+    chips.innerHTML = `<span style="font-family:var(--mono);font-size:10px;color:var(--red)">Error: ${e.message}</span>`;
+  }
+
+  btn.disabled = false; btn.classList.remove('loading');
+}
+
+function acceptJelSuggestion(code, desc) {
+  if (!editJel.includes(code)) {
+    editJel.push(code);
+    renderJelSelected();
+    renderJelList(document.getElementById('jel-search').value);
+  }
+  const chip = document.getElementById('jchip-' + code);
+  if (chip) {
+    chip.classList.add('accepted');
+    chip.querySelector('.suggest-chip-add').textContent = '✓ added';
+  }
+}
+
+// ════════════════════════════════════════════════════
+//  LOC SUGGESTION ENGINE  (books only)
+// ════════════════════════════════════════════════════
+
+// Extended LOC table with extra keyword hints for better matching
+const LOC_EXTENDED = [
+  ['B',  'Philosophy, Psychology, Religion', 'philosophy ethics metaphysics logic epistemology'],
+  ['BJ', 'Ethics', 'ethics moral virtue justice normative obligation'],
+  ['C',  'Auxiliary Sciences of History', 'archaeology genealogy chronology biography'],
+  ['D',  'World History', 'world history global international civilization war'],
+  ['E',  'History of the Americas — United States', 'american history united states colonial federal civil war'],
+  ['F',  'History of the Americas — Local', 'latin america canada mexico caribbean local regional history'],
+  ['G',  'Geography, Anthropology, Recreation', 'geography anthropology recreation physical human cultural'],
+  ['GF', 'Human Ecology, Anthropogeography', 'human ecology environment landscape place urban rural space'],
+  ['H',  'Social Sciences', 'social science society institutions welfare'],
+  ['HA', 'Statistics', 'statistics probability data quantitative methods regression'],
+  ['HB', 'Economic Theory, Demography', 'economic theory microeconomics macroeconomics general equilibrium welfare demography population'],
+  ['HC', 'Economic History and Conditions', 'economic history development growth national income productivity industrialization'],
+  ['HD', 'Industries, Land Use, Labor', 'industry land use labor employment agriculture production firms organization management'],
+  ['HE', 'Transportation and Communications', 'transportation infrastructure roads railways shipping logistics telecommunications'],
+  ['HF', 'Commerce, Business', 'commerce business trade international marketing management organization'],
+  ['HG', 'Finance', 'finance banking money credit debt investment capital financial markets monetary'],
+  ['HJ', 'Public Finance', 'public finance taxation fiscal policy government spending deficit debt revenue'],
+  ['HM', 'Sociology — General', 'sociology social theory stratification norms culture institutions'],
+  ['HN', 'Social History, Social Problems, Social Reform', 'social history poverty welfare inequality race class gender reform'],
+  ['HQ', 'Family, Marriage, Women, Gender', 'family marriage gender women household feminism sexuality'],
+  ['HT', 'Communities, Classes, Races', 'community urban suburban rural class race ethnicity neighborhood cities'],
+  ['HV', 'Social Pathology, Welfare', 'crime criminal justice poverty welfare public health addiction'],
+  ['HX', 'Socialism, Communism, Anarchism', 'socialism communism marxism political economy capitalism class struggle radical'],
+  ['J',  'Political Science', 'political science government democracy elections parties voting'],
+  ['JC', 'Political Theory', 'political theory sovereignty state democracy liberalism rights legitimacy'],
+  ['JF', 'Political Institutions and Administration', 'political institutions administration bureaucracy governance executive legislature'],
+  ['JK', 'Political Institutions — United States', 'american politics congress president federal government united states'],
+  ['JN', 'Political Institutions — Europe', 'european politics parliament government european union'],
+  ['JS', 'Local Government, Municipal Government', 'local government municipality city county planning zoning urban governance'],
+  ['JZ', 'International Relations', 'international relations diplomacy foreign policy global governance multilateral'],
+  ['K',  'Law', 'law legal regulation constitution rights courts property contract'],
+  ['KF', 'Law of the United States', 'american law federal law constitutional tort property antitrust regulation'],
+  ['KZ', 'Law of Nations', 'international law treaties sovereignty human rights global'],
+  ['N',  'Fine Arts', 'art architecture painting sculpture design aesthetics visual'],
+  ['NA', 'Architecture', 'architecture building design urban form construction planning space'],
+  ['QA', 'Mathematics, Computer Science', 'mathematics statistics computation algorithms programming optimization'],
+  ['R',  'Medicine', 'medicine health disease clinical epidemiology public health'],
+  ['S',  'Agriculture', 'agriculture farming rural food production crops environment'],
+  ['T',  'Technology', 'technology engineering innovation industrial manufacturing'],
+  ['TD', 'Environmental Technology, Sanitary Engineering', 'environment sanitation water air pollution environmental engineering sustainability'],
+  ['TE', 'Highway Engineering, Roads', 'highway road pavement transport infrastructure engineering'],
+  ['TK', 'Electrical Engineering, Electronics', 'electrical electronics digital technology computing energy grid'],
+  ['TL', 'Motor Vehicles, Aeronautics', 'automobile vehicle aviation transport mobility'],
+  ['Z',  'Bibliography, Library Science', 'bibliography library information cataloging archives reference'],
+];
+
+const BOOK_TYPES = new Set(['book','inbook','incollection','proceedings']);
+
+function suggestLOC() {
+  const btn = document.getElementById('loc-suggest-btn');
+  const statusEl = document.getElementById('loc-suggest-status');
+  const strip = document.getElementById('loc-suggestions');
+  const chips = document.getElementById('loc-suggestion-chips');
+
+  // Only allow for book-type entries
+  const entryType = document.getElementById('f-type').value;
+  if (!BOOK_TYPES.has(entryType)) {
+    statusEl.textContent = 'Books only (switch type)';
+    statusEl.style.color = 'var(--red)';
+    strip.classList.add('hidden');
+    return;
+  }
+
+  statusEl.textContent = '';
+  strip.classList.remove('hidden');
+
+  const title    = document.getElementById('f-title').value;
+  const keywords = document.getElementById('f-keywords').value;
+  const abstract = document.getElementById('f-abstract').value;
+  const venue    = document.getElementById('f-venue').value;
+
+  if (!title) {
+    chips.innerHTML = '<span style="font-family:var(--mono);font-size:10px;color:var(--red)">Fill in title first.</span>';
+    return;
+  }
+
+  const corpus = [title, keywords, abstract, venue].join(' ');
+  const corpusTokens = tokenize(corpus);
+  const corpusTokenSet = new Set(corpusTokens);
+
+  const scored = LOC_EXTENDED.map(([code, desc, hints]) => {
+    const descTokens = tokenize(desc + ' ' + (hints||''));
+    let score = scoreDesc(descTokens, corpusTokenSet, corpusTokens);
+    // Prefer 2-letter subclasses over single-letter broad classes
+    if (code.length === 2) score *= 1.4;
+    return { code, desc, score };
+  })
+  .filter(c => c.score > 0)
+  .sort((a, b) => b.score - a.score)
+  .slice(0, 3);
+
+  if (!scored.length) {
+    chips.innerHTML = '<span style="font-family:var(--mono);font-size:10px;color:var(--text3)">No strong match — select manually from the dropdown.</span>';
+    return;
+  }
+
+  chips.innerHTML = scored.map((c, i) => `
+    <div class="loc-suggest-chip" id="lchip-${c.code}" onclick="acceptLocSuggestion('${c.code}')">
+      <span class="loc-chip-code">${c.code}</span>
+      <span class="loc-chip-desc">${c.desc}</span>
+      <span class="loc-chip-add">apply</span>
+    </div>`).join('');
+}
+
+function acceptLocSuggestion(code) {
+  document.getElementById('f-lcc').value = code;
+  // Mark chip as accepted
+  document.querySelectorAll('.loc-suggest-chip').forEach(c => c.classList.remove('accepted'));
+  const chip = document.getElementById('lchip-' + code);
+  if (chip) {
+    chip.classList.add('accepted');
+    chip.querySelector('.loc-chip-add').textContent = '✓';
+  }
+  document.getElementById('loc-suggest-status').textContent = `Applied: ${code}`;
+  document.getElementById('loc-suggest-status').style.color = 'var(--green)';
+}
+
+// Watch entry type changes to update LOC button state in edit form
+function onTypeChange() {
+  const entryType = document.getElementById('f-type')?.value || '';
+  const locBtn = document.getElementById('loc-suggest-btn');
+  const statusEl = document.getElementById('loc-suggest-status');
+  if (!locBtn) return;
+  const isBook = BOOK_TYPES.has(entryType);
+  locBtn.disabled = !isBook;
+  locBtn.title = isBook ? 'Suggest LOC class based on title & keywords' : 'LOC classification is for books only';
+  if (!isBook) {
+    statusEl.textContent = 'books only';
+    statusEl.style.color = 'var(--text3)';
+    document.getElementById('loc-suggestions').classList.add('hidden');
+  } else {
+    statusEl.textContent = '';
+  }
+}
+
+// ════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════
+function init() {
+  initTheme();
+
+  // Search debounce
+  let debounce;
+  document.getElementById('search').addEventListener('input', e => {
+    clearTimeout(debounce);
+    debounce = setTimeout(()=>{ searchQ = e.target.value; runFilter(); }, 200);
+  });
+
+  // Virtual scroll
+  document.getElementById('list-scroll').addEventListener('scroll', renderVisible, {passive:true});
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      if (editing) cancelEdit();
+      closeModal('doi-modal');
+    }
+    if ((e.metaKey||e.ctrlKey) && e.key==='s') { e.preventDefault(); if(editing) saveEntry(); }
+    if ((e.metaKey||e.ctrlKey) && e.key==='d') { e.preventDefault(); openModal('doi-modal'); }
+    if ((e.metaKey||e.ctrlKey) && e.key==='f') { e.preventDefault(); document.getElementById('search').focus(); }
+  });
+
+  // Drag & drop import
+  const dropZone = document.getElementById('drop-zone');
+  ['dragover','dragenter'].forEach(ev => dropZone.addEventListener(ev, e=>{
+    e.preventDefault(); dropZone.classList.add('drag-over');
+  }));
+  ['dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, ()=>dropZone.classList.remove('drag-over')));
+  dropZone.addEventListener('drop', e=>{
+    e.preventDefault();
+    const file = e.dataTransfer?.files[0];
+    if (file && file.name.endsWith('.bib')) {
+      const fakeInput = { files: [file] };
+      handleFileImport(fakeInput);
+    } else toast('Please drop a .bib file.','error');
+  });
+
+  // Close modal on overlay click
+  document.getElementById('doi-modal').addEventListener('click', e=>{
+    if(e.target===e.currentTarget) closeModal('doi-modal');
+  });
+
+  // Enter key on modal DOI input
+  document.getElementById('modal-doi').addEventListener('keydown', e=>{
+    if(e.key==='Enter') modalDoiLookup();
+  });
+
+  // Enter key on fetch inputs
+  document.getElementById('doi-input').addEventListener('keydown', e=>{ if(e.key==='Enter') doiLookup(); });
+  document.getElementById('isbn-input').addEventListener('keydown', e=>{ if(e.key==='Enter') isbnLookup(); });
+  document.getElementById('title-search-input').addEventListener('keydown', e=>{ if(e.key==='Enter') titleSearchOpenLibrary(); });
+
+  // Build LOC select in form
+  buildLocSelect('f-lcc');
+
+  // Build initial type filter
+  const tf = document.getElementById('type-filters');
+  tf.innerHTML = `<div class="filter-opt active" onclick="setTypeFilter('')"><span>All</span><span class="count">0</span></div>`;
+
+  // Wire LOC button state to entry-type selector in the edit form
+  // (the form type selector is only in the DOM when editing, so use event delegation)
+  document.addEventListener('change', e => {
+    if (e.target && e.target.id === 'f-type') onTypeChange();
+  });
+
+  // Keyboard nav in list
+  document.addEventListener('keydown', e => {
+    if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+    if (!filtered.length) return;
+    const cur = filtered.findIndex(x=>x.key===selected);
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const next = Math.min(cur+1, filtered.length-1);
+      selectEntry(filtered[next].key);
+      scrollToEntry(next);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prev = Math.max(cur-1, 0);
+      selectEntry(filtered[prev].key);
+      scrollToEntry(prev);
+    }
+  });
+
+  console.log('BibForge — Keyboard shortcuts:\n  Ctrl/Cmd+D  Quick add via DOI\n  Ctrl/Cmd+F  Focus search\n  Ctrl/Cmd+S  Save entry (while editing)\n  ↑↓          Navigate entries\n  Escape      Cancel edit\n\n  Classification:\n  "Fetch JEL"   — hits AEA EconLit XML, keyword-scores, suggests top 3\n  "Suggest LOC" — books only, keyword-matches LOC table, suggests top 3\n\n  Auto-load path: ' + (BIBFORGE_CONFIG.autoLoad || 'disabled — set BIBFORGE_CONFIG.autoLoad to enable'));
+
+  // Attempt auto-load from configured repo path
+  autoLoadLibrary();
+}
+
+function scrollToEntry(idx) {
+  const wrap = document.getElementById('list-scroll');
+  const top = idx * ROW_H;
+  if (top < wrap.scrollTop) wrap.scrollTop = top;
+  else if (top + ROW_H > wrap.scrollTop + wrap.clientHeight) wrap.scrollTop = top + ROW_H - wrap.clientHeight;
+}
+
+init();
+</script>
+</body>
+</html>
