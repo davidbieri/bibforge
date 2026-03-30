@@ -120,6 +120,77 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 .hbtn.primary:hover { background: var(--amber); color: var(--bg); }
 .hbtn svg { flex-shrink: 0; }
 
+/* ── TOOLBAR ── */
+#toolbar {
+  display: none; align-items: center; gap: 4px;
+  padding: 0 12px; height: 42px; flex-shrink: 0;
+  background: var(--surface2); border-bottom: 1px solid var(--border);
+}
+#toolbar.visible { display: flex; }
+
+.tbtn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 5px 10px; border-radius: var(--radius);
+  background: transparent; border: 1px solid transparent;
+  color: var(--text3); font-family: var(--mono); font-size: 12px;
+  cursor: pointer; transition: all .15s; white-space: nowrap; user-select: none;
+}
+.tbtn:hover { background: var(--surface3); border-color: var(--border); color: var(--text); }
+.tbtn:active { background: var(--border); }
+.tbtn.active { background: var(--surface3); border-color: var(--border2); color: var(--text2); }
+.tbtn.save-btn { color: var(--amber); }
+.tbtn.save-btn:hover { background: var(--amber-dim); border-color: var(--amber); color: var(--amber); }
+.tbtn.save-btn.saved { color: var(--green); border-color: transparent; }
+.tbtn:disabled, .tbtn.disabled { opacity: .35; pointer-events: none; }
+.tbtn svg { flex-shrink: 0; }
+.tbtn-label { font-size: 12px; }
+.tb-sep { width: 1px; height: 22px; background: var(--border); margin: 0 4px; flex-shrink: 0; }
+.tb-fsa-badge {
+  font-family: var(--mono); font-size: 11px; padding: 1px 6px;
+  border-radius: 2px; background: var(--tag-bg); color: var(--green);
+  border: 1px solid #2a3a2a; margin-left: 4px; cursor: default;
+}
+
+/* ── STATS MODAL ── */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.stat-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 14px;
+}
+.stat-card-label { font-family: var(--mono); font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.stat-card-value { font-family: var(--display); font-size: 28px; font-weight: 700; color: var(--amber); line-height: 1; }
+.stat-card-sub { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-top: 3px; }
+.stats-bar-section { margin-top: 14px; }
+.stats-bar-title { font-family: var(--mono); font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+.stats-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.stats-bar-label { font-family: var(--mono); font-size: 12px; color: var(--text2); width: 110px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stats-bar-track { flex: 1; height: 8px; background: var(--surface3); border-radius: 4px; overflow: hidden; }
+.stats-bar-fill { height: 100%; border-radius: 4px; background: var(--amber); transition: width .4s ease; }
+.stats-bar-fill.blue { background: var(--blue); }
+.stats-bar-fill.green { background: var(--green); }
+.stats-bar-count { font-family: var(--mono); font-size: 11px; color: var(--text3); width: 36px; text-align: right; flex-shrink: 0; }
+.stats-year-wrap { display: flex; align-items: flex-end; gap: 2px; height: 60px; margin-top: 8px; }
+.stats-year-bar { flex: 1; background: var(--amber); border-radius: 2px 2px 0 0; min-width: 3px; transition: height .3s; cursor: default; opacity: .7; }
+.stats-year-bar:hover { opacity: 1; }
+.stats-year-axis { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 3px; }
+
+/* ── SHORTCUTS MODAL ── */
+.shortcut-table { width: 100%; border-collapse: collapse; }
+.shortcut-table tr { border-bottom: 1px solid var(--border); }
+.shortcut-table tr:last-child { border-bottom: none; }
+.shortcut-table td { padding: 7px 4px; font-size: 13px; color: var(--text2); }
+.shortcut-table td:first-child { font-family: var(--mono); font-size: 12px; color: var(--amber); white-space: nowrap; padding-right: 16px; }
+.shortcut-section { font-family: var(--mono); font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; padding: 10px 0 4px; }
+
+/* ── FIND & REPLACE MODAL ── */
+.fnr-row { display: flex; gap: 8px; align-items: center; }
+.fnr-row .form-input { flex: 1; }
+.fnr-field-select { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: var(--mono); font-size: 12px; padding: 6px 8px; outline: none; }
+.fnr-field-select:focus { border-color: var(--amber); }
+.fnr-results { font-family: var(--mono); font-size: 12px; color: var(--text3); min-height: 18px; margin-top: 4px; }
+.fnr-results.found { color: var(--amber); }
+.fnr-results.done  { color: var(--green); }
+
 #body { display: flex; flex: 1; overflow: hidden; }
 
 /* ── SIDEBAR ── */
@@ -650,6 +721,71 @@ body, #header, #sidebar, #list-wrap, #detail, .entry-row,
     <input type="file" id="file-input" accept=".bib" class="hidden" onchange="handleFileImport(this)">
   </div>
 
+  <!-- TOOLBAR -->
+  <div id="toolbar">
+    <!-- Save -->
+    <div class="tbtn save-btn" id="tbtn-save" onclick="fsSave()" title="Save to file (Ctrl+S)">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+        <rect x="2" y="2" width="12" height="12" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none"/>
+        <rect x="5" y="2" width="6" height="5" rx=".5" fill="currentColor" opacity=".5"/>
+        <rect x="4" y="9" width="8" height="4" rx=".8" stroke="currentColor" stroke-width="1.2" fill="none"/>
+      </svg>
+      <span class="tbtn-label">Save</span>
+      <span id="fsa-badge" class="tb-fsa-badge hidden">linked</span>
+    </div>
+
+    <div class="tb-sep"></div>
+
+    <!-- Duplicate -->
+    <div class="tbtn disabled" id="tbtn-dupe" onclick="duplicateEntry()" title="Duplicate selected entry">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+        <rect x="5" y="4" width="8" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3" fill="none"/>
+        <rect x="3" y="2" width="8" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3" fill="none" opacity=".5"/>
+        <line x1="7" y1="7" x2="11" y2="7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="7" y1="9.5" x2="11" y2="9.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      <span class="tbtn-label">Duplicate</span>
+    </div>
+
+    <div class="tb-sep"></div>
+
+    <!-- Stats -->
+    <div class="tbtn" id="tbtn-stats" onclick="openStatsModal()" title="Library statistics">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+        <rect x="2" y="9" width="3" height="5" rx=".8" fill="currentColor" opacity=".6"/>
+        <rect x="6.5" y="5" width="3" height="9" rx=".8" fill="currentColor" opacity=".8"/>
+        <rect x="11" y="2" width="3" height="12" rx=".8" fill="currentColor"/>
+      </svg>
+      <span class="tbtn-label">Stats</span>
+    </div>
+
+    <!-- Find & Replace -->
+    <div class="tbtn" id="tbtn-fnr" onclick="openFnrModal()" title="Find and replace across all entries (Ctrl+H)">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+        <circle cx="6.5" cy="6.5" r="4" stroke="currentColor" stroke-width="1.3"/>
+        <line x1="9.5" y1="9.5" x2="13" y2="13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="10" y1="11" x2="14" y2="11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <span class="tbtn-label">Find &amp; Replace</span>
+    </div>
+
+    <!-- Shortcuts -->
+    <div class="tbtn" id="tbtn-shortcuts" onclick="openShortcutsModal()" title="Keyboard shortcuts">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+        <rect x="1.5" y="3.5" width="13" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3" fill="none"/>
+        <rect x="3" y="5.5" width="2" height="2" rx=".4" fill="currentColor" opacity=".7"/>
+        <rect x="7" y="5.5" width="2" height="2" rx=".4" fill="currentColor" opacity=".7"/>
+        <rect x="11" y="5.5" width="2" height="2" rx=".4" fill="currentColor" opacity=".7"/>
+        <rect x="5" y="9" width="6" height="1.5" rx=".5" fill="currentColor" opacity=".6"/>
+      </svg>
+      <span class="tbtn-label">Shortcuts</span>
+    </div>
+
+    <div class="sep"></div>
+    <span id="toolbar-status" style="font-family:var(--mono);font-size:12px;color:var(--text3);"></span>
+  </div>
+
   <!-- BODY -->
   <div id="body">
 
@@ -1075,6 +1211,105 @@ body, #header, #sidebar, #list-wrap, #detail, .entry-row,
     <div class="modal-footer">
       <button class="modal-btn secondary" onclick="closeModal('doi-modal')">Cancel</button>
       <button class="modal-btn primary" id="modal-doi-save" onclick="saveDoiEntry()" disabled>Add to Library</button>
+    </div>
+  </div>
+</div>
+
+<!-- STATS MODAL -->
+<div class="modal-overlay" id="stats-modal">
+  <div class="modal" style="width:560px;">
+    <div class="modal-header">
+      <div class="modal-title">Library Statistics</div>
+      <div class="modal-close" onclick="closeModal('stats-modal')">✕</div>
+    </div>
+    <div class="modal-body" id="stats-modal-body">
+      <div style="color:var(--text3);font-family:var(--mono);font-size:12px;">Loading…</div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn secondary" onclick="closeModal('stats-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- FIND & REPLACE MODAL -->
+<div class="modal-overlay" id="fnr-modal">
+  <div class="modal" style="width:500px;">
+    <div class="modal-header">
+      <div class="modal-title">Find &amp; Replace</div>
+      <div class="modal-close" onclick="closeModal('fnr-modal')">✕</div>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Field to search</label>
+        <select class="fnr-field-select" id="fnr-field" style="width:100%">
+          <option value="all">All text fields</option>
+          <option value="author">author</option>
+          <option value="title">title</option>
+          <option value="journal">journal / booktitle</option>
+          <option value="publisher">publisher</option>
+          <option value="year">year</option>
+          <option value="keywords">keywords</option>
+          <option value="note">note</option>
+          <option value="url">url</option>
+          <option value="doi">doi</option>
+          <option value="jel">jel</option>
+          <option value="lcc">lcc</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-top:10px;">
+        <label class="form-label">Find</label>
+        <input class="form-input" id="fnr-find" placeholder="Text to find…" autocomplete="off">
+      </div>
+      <div class="form-group" style="margin-top:8px;">
+        <label class="form-label">Replace with</label>
+        <input class="form-input" id="fnr-replace" placeholder="Replacement text (leave empty to delete)" autocomplete="off">
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+        <label style="display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12px;color:var(--text2);cursor:pointer;">
+          <input type="checkbox" id="fnr-case" style="accent-color:var(--amber)"> Case-sensitive
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12px;color:var(--text2);cursor:pointer;">
+          <input type="checkbox" id="fnr-whole" style="accent-color:var(--amber)"> Whole field only
+        </label>
+      </div>
+      <div class="fnr-results" id="fnr-results"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn secondary" onclick="fnrPreview()">Preview matches</button>
+      <button class="modal-btn secondary" onclick="closeModal('fnr-modal')">Cancel</button>
+      <button class="modal-btn primary" id="fnr-replace-btn" onclick="fnrExecute()" disabled>Replace all</button>
+    </div>
+  </div>
+</div>
+
+<!-- SHORTCUTS MODAL -->
+<div class="modal-overlay" id="shortcuts-modal">
+  <div class="modal" style="width:460px;">
+    <div class="modal-header">
+      <div class="modal-title">Keyboard Shortcuts</div>
+      <div class="modal-close" onclick="closeModal('shortcuts-modal')">✕</div>
+    </div>
+    <div class="modal-body">
+      <table class="shortcut-table">
+        <tr><td colspan="2" class="shortcut-section">Navigation</td></tr>
+        <tr><td>Ctrl / Cmd + F</td><td>Focus search bar</td></tr>
+        <tr><td>↑ / ↓</td><td>Navigate entry list</td></tr>
+        <tr><td>Escape</td><td>Cancel edit or close modal</td></tr>
+        <tr><td colspan="2" class="shortcut-section">Entry Actions</td></tr>
+        <tr><td>Ctrl / Cmd + D</td><td>Quick add via DOI</td></tr>
+        <tr><td>Ctrl / Cmd + S</td><td>Save entry (while editing) · Save to file</td></tr>
+        <tr><td>Ctrl / Cmd + H</td><td>Find &amp; Replace</td></tr>
+        <tr><td colspan="2" class="shortcut-section">Classification</td></tr>
+        <tr><td>Fetch JEL</td><td>Suggest top 3 JEL codes from AEA EconLit tree</td></tr>
+        <tr><td>Suggest LOC</td><td>Suggest LOC class (books only)</td></tr>
+        <tr><td colspan="2" class="shortcut-section">File</td></tr>
+        <tr><td>Save button</td><td>Write-back via File System API (Chrome/Edge)</td></tr>
+        <tr><td>Export .bib</td><td>Download full library as .bib file</td></tr>
+        <tr><td>Drag &amp; drop</td><td>Import .bib file onto the landing screen</td></tr>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn secondary" onclick="closeModal('shortcuts-modal')">Close</button>
     </div>
   </div>
 </div>
@@ -1604,11 +1839,14 @@ function setTypeFilter(val) {
 //  ENTRY DETAIL
 // ════════════════════════════════════════════════════
 function selectEntry(key) {
-  if (editing) return; // don't switch while editing
+  if (editing) return;
   selected = key;
   const e = entries.find(x => x.key === key);
   if (!e) return;
-  renderVisible(); // refresh selection highlight
+  // Enable duplicate button
+  const dupeBtn = document.getElementById('tbtn-dupe');
+  if (dupeBtn) dupeBtn.classList.remove('disabled');
+  renderVisible();
   showDetail(e);
 }
 
@@ -2534,6 +2772,318 @@ function showLibrary() {
   document.getElementById('no-file').style.display = 'none';
   document.getElementById('list-header').classList.remove('hidden');
   document.getElementById('list-scroll').classList.remove('hidden');
+  showToolbar();
+}
+
+// ════════════════════════════════════════════════════
+//  TOOLBAR — SHOW/HIDE
+// ════════════════════════════════════════════════════
+function showToolbar() {
+  document.getElementById('toolbar').classList.add('visible');
+}
+
+function setToolbarStatus(msg, type='') {
+  const el = document.getElementById('toolbar-status');
+  el.textContent = msg;
+  el.style.color = type === 'ok' ? 'var(--green)' : type === 'err' ? 'var(--red)' : 'var(--text3)';
+  if (msg) setTimeout(() => { if (el.textContent === msg) el.textContent = ''; }, 3000);
+}
+
+// ════════════════════════════════════════════════════
+//  1. SAVE — FILE SYSTEM ACCESS API
+// ════════════════════════════════════════════════════
+let fsaFileHandle = null; // holds write permission once granted
+
+async function fsSave() {
+  if (!entries.length) { toast('Nothing to save.', 'info'); return; }
+
+  const btn = document.getElementById('tbtn-save');
+  const badge = document.getElementById('fsa-badge');
+
+  // File System Access API available (Chrome/Edge)?
+  if (window.showSaveFilePicker) {
+    try {
+      // Re-use existing handle if we have one, otherwise prompt
+      if (!fsaFileHandle) {
+        fsaFileHandle = await window.showSaveFilePicker({
+          suggestedName: 'library.bib',
+          types: [{ description: 'BibTeX file', accept: { 'text/plain': ['.bib'] } }],
+        });
+        badge.classList.remove('hidden');
+      }
+      const writable = await fsaFileHandle.createWritable();
+      await writable.write(exportBibTeX(entries));
+      await writable.close();
+      btn.classList.add('saved');
+      setToolbarStatus(`✓ Saved to ${fsaFileHandle.name}`, 'ok');
+      toast(`Saved to ${fsaFileHandle.name}`, 'success');
+      setTimeout(() => btn.classList.remove('saved'), 2000);
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        toast('Save failed: ' + err.message, 'error');
+        setToolbarStatus('Save failed', 'err');
+      }
+    }
+  } else {
+    // Fallback: standard download (Safari, Firefox)
+    exportBib();
+    setToolbarStatus('Downloaded (File System API not available in this browser)', '');
+  }
+}
+
+// ════════════════════════════════════════════════════
+//  2. DUPLICATE ENTRY
+// ════════════════════════════════════════════════════
+function duplicateEntry() {
+  if (!selected) return;
+  const src = entries.find(x => x.key === selected);
+  if (!src) return;
+
+  // Deep copy fields, generate a new unique key
+  const newFields = JSON.parse(JSON.stringify(src.fields));
+  let baseKey = src.key;
+  // Strip any existing suffix letter (e.g. smithb → smith)
+  let newKey = baseKey + 'b';
+  let suffix = 2;
+  while (entries.find(x => x.key === newKey)) {
+    newKey = baseKey + String.fromCharCode(96 + suffix);
+    suffix++;
+  }
+
+  const dupe = { type: src.type, key: newKey, fields: newFields };
+  // Insert right after the original
+  const idx = entries.findIndex(x => x.key === selected);
+  entries.splice(idx + 1, 0, dupe);
+
+  selected = newKey;
+  document.getElementById('btn-export').disabled = false;
+  buildSidebarFilters();
+  runFilter();
+
+  // Open in edit mode so user can immediately adjust the key/fields
+  const inserted = entries.find(x => x.key === newKey);
+  document.getElementById('detail-content').style.display = 'flex';
+  document.getElementById('detail-empty').style.display = 'none';
+  showDetail(inserted);
+  openEditForm(inserted, false);
+
+  toast(`Duplicated → ${newKey}`, 'success');
+  setToolbarStatus(`Duplicated: ${newKey}`);
+}
+
+// ════════════════════════════════════════════════════
+//  3. STATS MODAL
+// ════════════════════════════════════════════════════
+function openStatsModal() {
+  const body = document.getElementById('stats-modal-body');
+
+  if (!entries.length) {
+    body.innerHTML = '<p style="color:var(--text3);font-family:var(--mono);font-size:13px;">No library loaded yet.</p>';
+    openModal('stats-modal');
+    return;
+  }
+
+  // --- Counts ---
+  const total = entries.length;
+  const withJel = entries.filter(e => fmt(e,'jel')).length;
+  const withLoc = entries.filter(e => fmt(e,'lcc')).length;
+  const withDoi = entries.filter(e => fmt(e,'doi')).length;
+  const withAbstract = entries.filter(e => fmt(e,'abstract')).length;
+
+  // Type breakdown
+  const typeCounts = {};
+  entries.forEach(e => { typeCounts[e.type] = (typeCounts[e.type]||0)+1; });
+  const typesSorted = Object.entries(typeCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const maxType = typesSorted[0]?.[1] || 1;
+
+  // Datasource breakdown
+  const dsCounts = {};
+  entries.forEach(e => {
+    const ds = fmt(e,'datasource') || 'manual';
+    dsCounts[ds] = (dsCounts[ds]||0)+1;
+  });
+  const dsSorted = Object.entries(dsCounts).sort((a,b)=>b[1]-a[1]);
+
+  // Year histogram — group into ~20 buckets
+  const years = entries.map(e => parseInt(fmt(e,'year'))).filter(y => y > 1400 && y <= 2030);
+  let yearHtml = '';
+  if (years.length) {
+    const minY = Math.min(...years);
+    const maxY = Math.max(...years);
+    const span = maxY - minY || 1;
+    const buckets = 24;
+    const bucketSize = Math.ceil(span / buckets);
+    const hist = Array(buckets).fill(0);
+    years.forEach(y => {
+      const b = Math.min(Math.floor((y - minY) / bucketSize), buckets-1);
+      hist[b]++;
+    });
+    const maxH = Math.max(...hist);
+    yearHtml = `
+      <div class="stats-bar-section">
+        <div class="stats-bar-title">Publication years (${minY}–${maxY})</div>
+        <div class="stats-year-wrap">
+          ${hist.map((h,i) => `<div class="stats-year-bar" style="height:${Math.round((h/maxH)*100)}%" title="${minY+i*bucketSize}–${minY+(i+1)*bucketSize-1}: ${h} entries"></div>`).join('')}
+        </div>
+        <div class="stats-year-axis">
+          <span>${minY}</span>
+          <span>${Math.round((minY+maxY)/2)}</span>
+          <span>${maxY}</span>
+        </div>
+      </div>`;
+  }
+
+  body.innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card-label">Total entries</div>
+        <div class="stat-card-value">${total.toLocaleString()}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">JEL classified</div>
+        <div class="stat-card-value" style="color:var(--blue)">${withJel.toLocaleString()}</div>
+        <div class="stat-card-sub">${Math.round(withJel/total*100)}% of library</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">With DOI</div>
+        <div class="stat-card-value" style="color:var(--green)">${withDoi.toLocaleString()}</div>
+        <div class="stat-card-sub">${Math.round(withDoi/total*100)}% of library</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">LOC classified</div>
+        <div class="stat-card-value" style="color:var(--amber)">${withLoc.toLocaleString()}</div>
+        <div class="stat-card-sub">${Math.round(withLoc/total*100)}% of library</div>
+      </div>
+    </div>
+
+    <div class="stats-bar-section">
+      <div class="stats-bar-title">By entry type</div>
+      ${typesSorted.map(([t,c]) => `
+        <div class="stats-bar-row">
+          <div class="stats-bar-label">${t}</div>
+          <div class="stats-bar-track"><div class="stats-bar-fill" style="width:${Math.round(c/maxType*100)}%"></div></div>
+          <div class="stats-bar-count">${c.toLocaleString()}</div>
+        </div>`).join('')}
+    </div>
+
+    <div class="stats-bar-section">
+      <div class="stats-bar-title">By data source</div>
+      ${dsSorted.map(([ds,c]) => `
+        <div class="stats-bar-row">
+          <div class="stats-bar-label">${{crossref:'CrossRef',openlibrary:'Open Library',googlebooks:'Google Books',manual:'Manual'}[ds]||ds}</div>
+          <div class="stats-bar-track"><div class="stats-bar-fill blue" style="width:${Math.round(c/total*100)}%"></div></div>
+          <div class="stats-bar-count">${c.toLocaleString()}</div>
+        </div>`).join('')}
+    </div>
+
+    ${yearHtml}
+  `;
+
+  openModal('stats-modal');
+}
+
+// ════════════════════════════════════════════════════
+//  4. FIND & REPLACE
+// ════════════════════════════════════════════════════
+function openFnrModal() {
+  document.getElementById('fnr-results').textContent = '';
+  document.getElementById('fnr-results').className = 'fnr-results';
+  document.getElementById('fnr-replace-btn').disabled = true;
+  openModal('fnr-modal');
+  setTimeout(() => document.getElementById('fnr-find').focus(), 100);
+}
+
+function fnrGetMatches() {
+  const find    = document.getElementById('fnr-find').value;
+  const field   = document.getElementById('fnr-field').value;
+  const caseSen = document.getElementById('fnr-case').checked;
+  const whole   = document.getElementById('fnr-whole').checked;
+  if (!find) return [];
+
+  const needle = caseSen ? find : find.toLowerCase();
+
+  return entries.filter(e => {
+    const fieldsToCheck = field === 'all'
+      ? Object.keys(e.fields)
+      : field === 'journal' ? ['journal','booktitle'] : [field];
+
+    return fieldsToCheck.some(f => {
+      const val = e.fields[f] || '';
+      const haystack = caseSen ? val : val.toLowerCase();
+      return whole ? haystack === needle : haystack.includes(needle);
+    });
+  });
+}
+
+function fnrPreview() {
+  const find = document.getElementById('fnr-find').value;
+  if (!find) { document.getElementById('fnr-results').textContent = 'Enter search text first.'; return; }
+  const matches = fnrGetMatches();
+  const resultsEl = document.getElementById('fnr-results');
+  const replaceBtn = document.getElementById('fnr-replace-btn');
+  if (!matches.length) {
+    resultsEl.textContent = 'No matches found.';
+    resultsEl.className = 'fnr-results';
+    replaceBtn.disabled = true;
+  } else {
+    resultsEl.textContent = `${matches.length} entr${matches.length===1?'y':'ies'} match — e.g.: ${stripBraces(fmt(matches[0],'title')||matches[0].key).slice(0,60)}`;
+    resultsEl.className = 'fnr-results found';
+    replaceBtn.disabled = false;
+  }
+}
+
+function fnrExecute() {
+  const find    = document.getElementById('fnr-find').value;
+  const replace = document.getElementById('fnr-replace').value;
+  const field   = document.getElementById('fnr-field').value;
+  const caseSen = document.getElementById('fnr-case').checked;
+  const whole   = document.getElementById('fnr-whole').checked;
+  if (!find) return;
+
+  const needle = caseSen ? find : find.toLowerCase();
+  let count = 0;
+
+  entries.forEach(e => {
+    const fieldsToCheck = field === 'all'
+      ? Object.keys(e.fields)
+      : field === 'journal' ? ['journal','booktitle'] : [field];
+
+    fieldsToCheck.forEach(f => {
+      const val = e.fields[f];
+      if (!val) return;
+      const haystack = caseSen ? val : val.toLowerCase();
+      if (whole ? haystack === needle : haystack.includes(needle)) {
+        if (whole) {
+          e.fields[f] = replace;
+        } else {
+          // Case-insensitive replace
+          const re = new RegExp(find.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), caseSen?'g':'gi');
+          e.fields[f] = val.replace(re, replace);
+        }
+        if (!e.fields[f]) delete e.fields[f];
+        count++;
+      }
+    });
+  });
+
+  const resultsEl = document.getElementById('fnr-results');
+  resultsEl.textContent = `✓ Replaced in ${count} field${count===1?'':'s'} across ${fnrGetMatches().length} remaining entries.`;
+  resultsEl.className = 'fnr-results done';
+  document.getElementById('fnr-replace-btn').disabled = true;
+
+  buildSidebarFilters();
+  runFilter();
+  if (selected) { const e = entries.find(x=>x.key===selected); if(e) showDetail(e); }
+  document.getElementById('btn-export').disabled = false;
+  toast(`Find & Replace: ${count} field${count===1?'':'s'} updated.`, 'success');
+  setToolbarStatus(`Find & Replace: ${count} fields updated`, 'ok');
+}
+
+// ════════════════════════════════════════════════════
+//  5. SHORTCUTS MODAL
+// ════════════════════════════════════════════════════
+function openShortcutsModal() {
+  openModal('shortcuts-modal');
 }
 
 function exportBib() {
@@ -2927,10 +3477,18 @@ function init() {
     if (e.key === 'Escape') {
       if (editing) cancelEdit();
       closeModal('doi-modal');
+      closeModal('stats-modal');
+      closeModal('fnr-modal');
+      closeModal('shortcuts-modal');
     }
-    if ((e.metaKey||e.ctrlKey) && e.key==='s') { e.preventDefault(); if(editing) saveEntry(); }
+    if ((e.metaKey||e.ctrlKey) && e.key==='s') {
+      e.preventDefault();
+      if (editing) saveEntry();
+      else fsSave();
+    }
     if ((e.metaKey||e.ctrlKey) && e.key==='d') { e.preventDefault(); openModal('doi-modal'); }
     if ((e.metaKey||e.ctrlKey) && e.key==='f') { e.preventDefault(); document.getElementById('search').focus(); }
+    if ((e.metaKey||e.ctrlKey) && e.key==='h') { e.preventDefault(); openFnrModal(); }
   });
 
   // Drag & drop import
@@ -2963,6 +3521,14 @@ function init() {
   document.getElementById('isbn-input').addEventListener('keydown', e=>{ if(e.key==='Enter') isbnLookup(); });
   document.getElementById('title-search-input').addEventListener('keydown', e=>{ if(e.key==='Enter') titleSearchOpenLibrary(); });
 
+  // Enter key on FnR find → preview
+  document.getElementById('fnr-find').addEventListener('keydown', e=>{ if(e.key==='Enter') fnrPreview(); });
+  // Live preview on fnr input
+  document.getElementById('fnr-find').addEventListener('input', () => {
+    document.getElementById('fnr-replace-btn').disabled = true;
+    document.getElementById('fnr-results').textContent = '';
+  });
+
   // Build LOC select in form
   buildLocSelect('f-lcc');
 
@@ -2994,7 +3560,7 @@ function init() {
     }
   });
 
-  console.log('BibForge — Keyboard shortcuts:\n  Ctrl/Cmd+D  Quick add via DOI\n  Ctrl/Cmd+F  Focus search\n  Ctrl/Cmd+S  Save entry (while editing)\n  ↑↓          Navigate entries\n  Escape      Cancel edit\n\n  Classification:\n  "Fetch JEL"   — hits AEA EconLit XML, keyword-scores, suggests top 3\n  "Suggest LOC" — books only, keyword-matches LOC table, suggests top 3\n\n  Auto-load path: ' + (BIBFORGE_CONFIG.autoLoad || 'disabled — set BIBFORGE_CONFIG.autoLoad to enable'));
+  console.log('BibForge — Keyboard shortcuts:\n  Ctrl/Cmd+D  Quick add via DOI\n  Ctrl/Cmd+F  Focus search\n  Ctrl/Cmd+S  Save to file (or save entry while editing)\n  Ctrl/Cmd+H  Find & Replace\n  ↑↓          Navigate entries\n  Escape      Cancel / close\n\n  Toolbar: Save · Duplicate · Stats · Find & Replace · Shortcuts\n\n  Auto-load path: ' + (BIBFORGE_CONFIG.autoLoad || 'disabled — set BIBFORGE_CONFIG.autoLoad to enable'));
 
   // Attempt auto-load from configured repo path
   autoLoadLibrary();
