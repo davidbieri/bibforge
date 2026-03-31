@@ -193,6 +193,124 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
 
 #body { display: flex; flex: 1; overflow: hidden; }
 
+/* ════════════════════════════════════════════════════
+   RESPONSIVE LAYOUT
+   ════════════════════════════════════════════════════
+
+   Desktop  (≥900px):  sidebar | list | detail  — all three visible
+   Tablet   (600–900): list | detail  — sidebar hidden, opens as drawer
+   Mobile   (<600px):  single panel at a time, bottom nav to switch
+
+   ════════════════════════════════════════════════════ */
+
+/* ── TABLET (≤900px) — collapse sidebar to drawer ── */
+@media (max-width: 900px) {
+  #sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0; z-index: 50;
+    transform: translateX(-100%); transition: transform .25s ease;
+    box-shadow: 4px 0 24px rgba(0,0,0,.4); width: 240px;
+  }
+  #sidebar.open { transform: translateX(0); }
+
+  #sidebar-overlay {
+    display: none; position: fixed; inset: 0; z-index: 49;
+    background: rgba(0,0,0,.5);
+  }
+  #sidebar-overlay.open { display: block; }
+
+  #btn-sidebar-toggle { display: flex !important; }
+
+  #detail { width: 340px; }
+
+  .tbtn-label { display: none; }
+  .tb-sep { display: none; }
+  #toolbar { gap: 2px; padding: 0 8px; }
+}
+
+/* ── MOBILE (≤600px) — single panel mode ── */
+@media (max-width: 600px) {
+  /* Header collapses */
+  #header { padding: 0 10px; gap: 8px; height: 48px; }
+  #logo span { display: none; }
+  #logo { font-size: 18px; }
+  #entry-count { display: none; }
+  #search-wrap { max-width: none; flex: 1; }
+  #btn-import, #btn-new { display: none !important; }
+
+  /* Toolbar hides on mobile — actions go to bottom nav */
+  #toolbar { display: none !important; }
+
+  /* Body stacks panels */
+  #body { position: relative; }
+  #sidebar {
+    position: fixed; left: 0; top: 0; bottom: 56px; z-index: 50;
+    transform: translateX(-100%); transition: transform .25s ease;
+    box-shadow: 4px 0 24px rgba(0,0,0,.5); width: 85vw; max-width: 300px;
+  }
+  #sidebar.open { transform: translateX(0); }
+
+  #list-wrap {
+    position: absolute; inset: 0; bottom: 56px;
+    display: flex; flex-direction: column;
+    transition: transform .3s ease, opacity .3s ease;
+  }
+  #list-wrap.panel-hidden { transform: translateX(-100%); opacity: 0; pointer-events: none; }
+
+  #detail {
+    position: absolute; inset: 0; bottom: 56px;
+    width: 100% !important; border-left: none;
+    transform: translateX(100%); opacity: 0; pointer-events: none;
+    transition: transform .3s ease, opacity .3s ease;
+  }
+  #detail.panel-active { transform: translateX(0); opacity: 1; pointer-events: auto; }
+
+  /* Detail back button */
+  #detail-back-btn {
+    display: flex !important; align-items: center; gap: 6px;
+    padding: 8px 12px 0; font-family: var(--mono); font-size: 13px;
+    color: var(--amber); cursor: pointer; flex-shrink: 0;
+  }
+  #detail-back-btn:active { opacity: .7; }
+
+  /* Bottom navigation bar */
+  #mobile-nav {
+    display: flex !important;
+    position: fixed; bottom: 0; left: 0; right: 0; height: 56px;
+    background: var(--surface); border-top: 1px solid var(--border);
+    z-index: 40;
+  }
+
+  .mobile-nav-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 3px; cursor: pointer;
+    font-family: var(--mono); font-size: 10px; color: var(--text3);
+    transition: color .15s; -webkit-tap-highlight-color: transparent;
+  }
+  .mobile-nav-btn.active { color: var(--amber); }
+  .mobile-nav-btn svg { flex-shrink: 0; }
+
+  /* Modals full-screen on mobile */
+  .modal { width: 95vw !important; max-height: 85vh; }
+  .modal-body { max-height: calc(85vh - 120px); overflow-y: auto; }
+
+  /* Form grid single column on mobile */
+  .form-grid { grid-template-columns: 1fr !important; }
+
+  /* Edit form full panel */
+  #edit-form { font-size: 15px; }
+
+  .entry-row { padding: 10px 12px; }
+  .row-key { display: none; }
+
+  /* Bigger touch targets for detail buttons */
+  .detail-btn { padding: 10px 6px; font-size: 13px; }
+}
+
+/* Always hide these by default — shown via JS on mobile */
+#mobile-nav { display: none; }
+#detail-back-btn { display: none; }
+#btn-sidebar-toggle { display: none; }
+
 /* ── SIDEBAR ── */
 #sidebar {
   width: 200px; flex-shrink: 0; overflow-y: auto;
@@ -680,6 +798,15 @@ body, #header, #sidebar, #list-wrap, #detail, .entry-row,
       <span>— academic reference manager</span>
     </div>
 
+    <!-- Sidebar toggle (tablet/mobile) -->
+    <button class="hbtn" id="btn-sidebar-toggle" onclick="toggleSidebar()" title="Filters" style="display:none;padding:6px 8px;">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+        <line x1="2" y1="4" x2="14" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="2" y1="8" x2="10" y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="2" y1="12" x2="7" y2="12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+    </button>
+
     <div id="search-wrap">
       <svg id="search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
         <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.3"/>
@@ -789,6 +916,9 @@ body, #header, #sidebar, #list-wrap, #detail, .entry-row,
   <!-- BODY -->
   <div id="body">
 
+    <!-- Sidebar overlay (tablet/mobile) -->
+    <div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
     <!-- SIDEBAR -->
     <div id="sidebar">
       <div class="sb-section">
@@ -883,6 +1013,13 @@ body, #header, #sidebar, #list-wrap, #detail, .entry-row,
 
     <!-- DETAIL PANEL -->
     <div id="detail">
+      <!-- Mobile back button -->
+      <div id="detail-back-btn" onclick="mobileShowList()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Back to list
+      </div>
       <div id="detail-empty">
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
           <rect x="8" y="6" width="26" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="2"/>
@@ -1188,6 +1325,49 @@ body, #header, #sidebar, #list-wrap, #detail, .entry-row,
     </div>
 
   </div><!-- /body -->
+
+  <!-- MOBILE BOTTOM NAV -->
+  <nav id="mobile-nav">
+    <div class="mobile-nav-btn active" id="mnav-list" onclick="mobileShowList()">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <line x1="4" y1="6" x2="16" y2="6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="4" y1="10" x2="16" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="4" y1="14" x2="12" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      List
+    </div>
+    <div class="mobile-nav-btn" id="mnav-detail" onclick="mobileShowDetail()">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+        <line x1="6" y1="7" x2="14" y2="7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="6" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        <line x1="6" y1="13" x2="10" y2="13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      Entry
+    </div>
+    <div class="mobile-nav-btn" id="mnav-new" onclick="openNewEntry()">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5" fill="none"/>
+        <line x1="10" y1="6.5" x2="10" y2="13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="6.5" y1="10" x2="13.5" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      New
+    </div>
+    <div class="mobile-nav-btn" id="mnav-filters" onclick="toggleSidebar()">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M3 5h14M6 10h8M9 15h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Filters
+    </div>
+    <div class="mobile-nav-btn" id="mnav-save" onclick="fsSave()">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <rect x="3" y="3" width="14" height="14" rx="1.5" stroke="currentColor" stroke-width="1.5" fill="none"/>
+        <rect x="6.5" y="3" width="7" height="5.5" rx=".5" fill="currentColor" opacity=".5"/>
+        <rect x="5" y="11" width="10" height="4.5" rx=".8" stroke="currentColor" stroke-width="1.2" fill="none"/>
+      </svg>
+      Save
+    </div>
+  </nav>
 </div><!-- /app -->
 
 <!-- NEW ENTRY MODAL (DOI shortcut from header) -->
@@ -1848,6 +2028,8 @@ function selectEntry(key) {
   if (dupeBtn) dupeBtn.classList.remove('disabled');
   renderVisible();
   showDetail(e);
+  // On mobile, auto-navigate to detail panel
+  if (isMobile()) mobileShowDetail();
 }
 
 function showDetail(e) {
@@ -3562,8 +3744,72 @@ function init() {
 
   console.log('BibForge — Keyboard shortcuts:\n  Ctrl/Cmd+D  Quick add via DOI\n  Ctrl/Cmd+F  Focus search\n  Ctrl/Cmd+S  Save to file (or save entry while editing)\n  Ctrl/Cmd+H  Find & Replace\n  ↑↓          Navigate entries\n  Escape      Cancel / close\n\n  Toolbar: Save · Duplicate · Stats · Find & Replace · Shortcuts\n\n  Auto-load path: ' + (BIBFORGE_CONFIG.autoLoad || 'disabled — set BIBFORGE_CONFIG.autoLoad to enable'));
 
+  // Responsive sidebar + mobile panels
+  initResponsive();
+
   // Attempt auto-load from configured repo path
   autoLoadLibrary();
+}
+
+// ════════════════════════════════════════════════════
+//  RESPONSIVE — SIDEBAR DRAWER + MOBILE PANELS
+// ════════════════════════════════════════════════════
+
+function isMobile() { return window.innerWidth <= 600; }
+function isTablet() { return window.innerWidth <= 900 && window.innerWidth > 600; }
+
+function toggleSidebar() {
+  const sb  = document.getElementById('sidebar');
+  const ov  = document.getElementById('sidebar-overlay');
+  const isOpen = sb.classList.contains('open');
+  if (isOpen) { closeSidebar(); } else {
+    sb.classList.add('open');
+    ov.classList.add('open');
+  }
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+
+// Mobile: show list panel
+function mobileShowList() {
+  if (!isMobile()) return;
+  document.getElementById('list-wrap').classList.remove('panel-hidden');
+  document.getElementById('detail').classList.remove('panel-active');
+  document.getElementById('mnav-list').classList.add('active');
+  document.getElementById('mnav-detail').classList.remove('active');
+  closeSidebar();
+}
+
+// Mobile: show detail panel
+function mobileShowDetail() {
+  if (!isMobile()) return;
+  document.getElementById('detail').classList.add('panel-active');
+  document.getElementById('list-wrap').classList.add('panel-hidden');
+  document.getElementById('mnav-detail').classList.add('active');
+  document.getElementById('mnav-list').classList.remove('active');
+}
+
+// Close sidebar on outside tap / resize
+function initResponsive() {
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 900) closeSidebar();
+    // On desktop ensure panels are always visible
+    if (window.innerWidth > 600) {
+      document.getElementById('list-wrap').classList.remove('panel-hidden');
+      document.getElementById('detail').classList.remove('panel-active');
+    }
+  });
+  // Swipe-left to close sidebar
+  let touchStartX = 0;
+  document.getElementById('sidebar').addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+  }, {passive: true});
+  document.getElementById('sidebar').addEventListener('touchend', e => {
+    if (e.changedTouches[0].clientX - touchStartX < -50) closeSidebar();
+  }, {passive: true});
 }
 
 function scrollToEntry(idx) {
