@@ -249,20 +249,31 @@ BibForge can fetch a `.bib` file automatically on startup if it lives in the sam
 
 ### Setup
 
-Commit your `.bib` file to the repo (recommended location: `data/library.bib`), then edit the config block near the top of `bibforge.html` / `index.html`:
+Commit your `.bib` file anywhere in the repo, then edit the config block near the top of `index.html`:
 
 ```javascript
 const BIBFORGE_CONFIG = {
-  autoLoad: '/data/library.bib',   // path relative to repo root
-  autoLoadLabel: 'library.bib',    // display name shown in the UI
+  autoLoad: '/bib/library_inventory.bib',   // path relative to repo root
+  autoLoadLabel: 'library_inventory.bib',   // display name shown in the UI
 };
+```
+
+The path must start with `/` and match the file's location in the repository exactly. Any subfolder name works — use whatever makes sense for your project structure:
+
+```javascript
+autoLoad: '/bib/library_inventory.bib'        // bib/ subfolder
+autoLoad: '/data/library.bib'                 // data/ subfolder
+autoLoad: '/references/main.bib'              // references/ subfolder
+autoLoad: '/library_inventory.bib'            // repo root
 ```
 
 Set `autoLoad: null` to disable auto-loading and always show the manual import screen instead.
 
 ### How it works
 
-On startup BibForge issues a `fetch()` to the configured path. Because the `.bib` file is served from the same GitHub Pages origin as the app, the request succeeds without CORS restrictions or authentication. The progress bar fills as the file is fetched and parsed. If the path is wrong or the file is missing, BibForge falls back gracefully to the manual import screen and logs the specific error to the browser console.
+On startup BibForge issues a `fetch()` to the configured path. Because the `.bib` file is served from the same GitHub Pages origin as the app, the request succeeds without CORS restrictions or authentication. The progress bar fills as the file is fetched and parsed. If the path is wrong or the file is missing, BibForge falls back gracefully to the manual import screen and logs the specific HTTP error to the browser console.
+
+If you ever rename the file or move it to a different subfolder, update the `autoLoad` line and push — no other changes are needed.
 
 ### Workflow with version control
 
@@ -270,7 +281,7 @@ With auto-load enabled, the recommended editing cycle is:
 
 1. Open BibForge — library loads automatically from the repo
 2. Browse, add entries, fetch metadata, classify
-3. Click **Export .bib** — save the file back to `data/library.bib` locally
+3. Click **Export .bib** or press `Ctrl/Cmd+S` — save the file back to the same local subfolder
 4. Commit and push — the updated library is live on the next page load
 
 This keeps the `.bib` file under version control. Every commit is a dated snapshot of the library state, diffs show exactly which entries changed, and the file is accessible from any browser without local software.
@@ -316,15 +327,18 @@ Theme preference (light/dark) is saved to `localStorage`. All library data lives
 
 ## File Structure
 
+The `.bib` file can live in any subfolder. The only requirement is that `BIBFORGE_CONFIG.autoLoad` in `index.html` matches the actual path. Three common layouts:
+
 ```
-your-repo/
-├── index.html           ← bibforge.html renamed
-├── data/
-│   └── library.bib      ← auto-loaded on startup (configure path in index.html)
-└── README.md            ← this file (optional)
+your-repo/                         your-repo/                    your-repo/
+├── index.html                     ├── index.html                ├── index.html
+├── bib/                           ├── data/                     ├── library_inventory.bib
+│   └── library_inventory.bib      │   └── library.bib           └── README.md
+└── README.md                      └── README.md
+   autoLoad: '/bib/...'               autoLoad: '/data/...'         autoLoad: '/library...'
 ```
 
-No `_config.yml`, Jekyll configuration, or custom domain setup required. The `data/` folder is optional — the `.bib` file can sit anywhere in the repository as long as `BIBFORGE_CONFIG.autoLoad` points to the correct path.
+No `_config.yml`, Jekyll configuration, or custom domain setup required.
 
 ---
 
