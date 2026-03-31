@@ -1,5 +1,9 @@
 # BibForge
 
+![Version](https://img.shields.io/github/v/tag/davidbieri/bibforge?label=version&style=flat-square&color=c8973a)
+![No dependencies](https://img.shields.io/badge/dependencies-none-5a9a6e?style=flat-square)
+![Deploy](https://img.shields.io/badge/deploy-GitHub%20Pages-5b8fa8?style=flat-square)
+
 A single-file, client-side academic reference manager for large BibTeX libraries, deployable on GitHub Pages with no build step and no backend.
 
 Built for academic collections with disciplinary emphasis on urban planning, spatial and regional economics, monetary history, and political economy. Handles libraries of 10,000+ entries without performance degradation.
