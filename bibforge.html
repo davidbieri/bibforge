@@ -3,7 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BibForge</title>
+<title>BibForge — Academic BibTeX Library Manager</title>
+<meta name="description" content="Single-file, client-side BibTeX reference manager. Full-text search, DOI/ISBN metadata fetch, JEL classification, LOC subclassing, virtual scrolling for 10,000+ entries. No build step. No server. GitHub Pages ready.">
+<meta name="keywords" content="BibTeX editor, reference manager, academic bibliography, BibTeX, JabRef alternative, Zotero BibTeX, Mendeley alternative, JEL classification, Library of Congress, DOI lookup, ISBN lookup, CrossRef, Open Library, citation key, academic references, LaTeX bibliography, Better BibTeX, bibliography manager, free reference manager, open source reference manager, Paperpile alternative, Citavi alternative, EndNote alternative, ReadCube alternative, BibDesk alternative, academic library management">
+<meta name="author" content="David Bieri, Virginia Tech SPIA">
+<meta property="og:title" content="BibForge — Academic BibTeX Library Manager">
+<meta property="og:description" content="Browser-native BibTeX reference manager. DOI/ISBN metadata, JEL auto-classification, LOC subclassing, virtual scrolling for 10,000+ entries. Single file, no build step.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://davidbieri.github.io/bibforge/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="BibForge — Academic BibTeX Library Manager">
+<meta name="twitter:description" content="Browser-native BibTeX reference manager for large academic collections.">
+<link rel="canonical" href="https://davidbieri.github.io/bibforge/">
+<!-- GoatCounter analytics — privacy-friendly, no cookies -->
+<script data-goatcounter="https://bibforge.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
 <style>
@@ -235,7 +248,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(-
   #logo { font-size: 18px; }
   #entry-count { display: none; }
   #search-wrap { max-width: none; flex: 1; }
-  #btn-import, #btn-new { display: none !important; }
+  #btn-import, #btn-import-csv, #btn-new { display: none !important; }
 
   /* Toolbar hides on mobile — actions go to bottom nav */
   #toolbar { display: none !important; }
@@ -773,6 +786,93 @@ body, #header, #sidebar, #list-wrap, #detail, .entry-row,
   transition: background-color .2s, border-color .2s, color .15s;
 }
 
+
+/* ── CSV MAPPING MODAL ── */
+.csv-map-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 10px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); margin-bottom: 6px;
+}
+.csv-col-name {
+  flex: 0 0 150px; font-family: var(--mono); font-size: 12.5px;
+  color: var(--amber); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.csv-col-arrow { color: var(--text3); flex-shrink: 0; }
+.csv-map-select {
+  flex: 1; background: var(--surface3); border: 1px solid var(--border2);
+  border-radius: var(--radius); color: var(--text); font-family: var(--mono);
+  font-size: 12px; padding: 4px 6px; outline: none; cursor: pointer;
+}
+.csv-map-select:focus { border-color: var(--amber); }
+.csv-sample {
+  flex: 0 0 130px; font-size: 12px; color: var(--text3);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-family: var(--serif); font-style: italic;
+}
+
+/* ── INSIGHTS MODAL ── */
+.insights-tabs {
+  display: flex; gap: 0; margin-bottom: 14px;
+  border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden;
+}
+.insights-tab {
+  flex: 1; padding: 5px 4px; text-align: center; font-family: var(--mono); font-size: 11px;
+  cursor: pointer; color: var(--text3); background: var(--surface2);
+  border-right: 1px solid var(--border); transition: all .12s; letter-spacing: .02em;
+}
+.insights-tab:last-child { border-right: none; }
+.insights-tab:hover { color: var(--text); background: var(--surface3); }
+.insights-tab.active { background: var(--amber-dim); color: var(--amber); }
+.insights-panel { display: none; }
+.insights-panel.active { display: block; }
+
+.ins-stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.ins-stat {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 10px 12px;
+}
+.ins-stat-label { font-family: var(--mono); font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+.ins-stat-val { font-family: var(--display); font-size: 22px; font-weight: 700; color: var(--amber); line-height: 1.1; }
+.ins-stat-val.blue  { color: var(--blue); }
+.ins-stat-val.green { color: var(--green); }
+.ins-stat-sub { font-family: var(--mono); font-size: 11px; color: var(--text3); margin-top: 2px; }
+.ins-section-title {
+  font-family: var(--mono); font-size: 11px; color: var(--text3);
+  text-transform: uppercase; letter-spacing: .07em;
+  margin: 12px 0 6px;
+}
+.ins-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.ins-bar-label { font-family: var(--mono); font-size: 12px; color: var(--text2); width: 120px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ins-bar-track { flex: 1; height: 7px; background: var(--surface3); border-radius: 4px; overflow: hidden; }
+.ins-bar-fill { height: 100%; border-radius: 4px; background: var(--amber); }
+.ins-bar-fill.blue  { background: var(--blue); }
+.ins-bar-fill.green { background: var(--green); }
+.ins-bar-count { font-family: var(--mono); font-size: 11px; color: var(--text3); width: 38px; text-align: right; flex-shrink: 0; }
+
+.ins-year-chart { display: flex; align-items: flex-end; gap: 2px; height: 60px; margin: 8px 0 3px; }
+.ins-year-bar { flex: 1; background: var(--amber); border-radius: 2px 2px 0 0; min-width: 2px; opacity: .7; cursor: default; }
+.ins-year-bar:hover { opacity: 1; }
+.ins-year-axis { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--text3); }
+
+.ins-quality-ring {
+  display: flex; align-items: center; justify-content: center;
+  width: 80px; height: 80px; border-radius: 50%;
+  border: 6px solid var(--border);
+  font-family: var(--display); font-size: 22px; font-weight: 700;
+  color: var(--amber); margin: 8px auto 12px;
+  position: relative;
+}
+.ins-jel-heatmap {
+  display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;
+}
+.ins-jel-cell {
+  font-family: var(--mono); font-size: 11px; padding: 2px 6px;
+  border-radius: 2px; cursor: default;
+  background: var(--surface3); border: 1px solid var(--border);
+  color: var(--blue);
+}
+
 /* ── UTILITY ── */
 .hidden { display: none !important; }
 </style>
@@ -795,7 +895,7 @@ body, #header, #sidebar, #list-wrap, #detail, .entry-row,
         <line x1="5" y1="13" x2="9" y2="13" stroke="#c8973a" stroke-width="1.2"/>
       </svg>
       BibForge
-      <span>— academic reference manager</span>
+      <span>— academic reference manager · v1.0</span>
     </div>
 
     <!-- Sidebar toggle (tablet/mobile) -->
@@ -826,6 +926,10 @@ body, #header, #sidebar, #list-wrap, #detail, .entry-row,
       <svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 1v6M3.5 5l2.5 2.5L8.5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M1 9h10v1.5H1z" fill="currentColor" opacity=".3"/></svg>
       Import .bib
     </button>
+    <button class="hbtn" id="btn-import-csv" onclick="triggerCsvImport()" title="Import from CSV with column mapping">
+      <svg width="12" height="12" viewBox="0 0 12 12"><rect x="1" y="2" width="10" height="8" rx="1" stroke="currentColor" stroke-width="1.3" fill="none"/><line x1="1" y1="5" x2="11" y2="5" stroke="currentColor" stroke-width="1.1"/><line x1="4" y1="5" x2="4" y2="10" stroke="currentColor" stroke-width="1.1"/></svg>
+      Import .csv
+    </button>
     <button class="hbtn primary" id="btn-export" onclick="exportBib()" disabled>
       <svg width="12" height="12" viewBox="0 0 12 12"><path d="M6 8V2M3.5 4l2.5-2.5L8.5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M1 9h10v1.5H1z" fill="currentColor" opacity=".5"/></svg>
       Export .bib
@@ -846,6 +950,7 @@ body, #header, #sidebar, #list-wrap, #detail, .entry-row,
     </div>
 
     <input type="file" id="file-input" accept=".bib" class="hidden" onchange="handleFileImport(this)">
+    <input type="file" id="csv-file-input" accept=".csv" class="hidden" onchange="handleCsvFile(this)">
   </div>
 
   <!-- TOOLBAR -->
@@ -884,6 +989,17 @@ body, #header, #sidebar, #list-wrap, #detail, .entry-row,
         <rect x="11" y="2" width="3" height="12" rx=".8" fill="currentColor"/>
       </svg>
       <span class="tbtn-label">Stats</span>
+    </div>
+
+    <!-- Library Insights -->
+    <div class="tbtn" id="tbtn-insights" onclick="openInsightsModal()" title="Library analytics & insights">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3" fill="none"/>
+        <path d="M8 8 L8 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        <path d="M8 8 L11.5 10.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        <circle cx="8" cy="8" r="1.2" fill="currentColor"/>
+      </svg>
+      <span class="tbtn-label">Insights</span>
     </div>
 
     <!-- Find & Replace -->
@@ -956,6 +1072,7 @@ body, #header, #sidebar, #list-wrap, #detail, .entry-row,
           <option value="crossref">CrossRef</option>
           <option value="openlibrary">Open Library</option>
           <option value="googlebooks">Google Books</option>
+          <option value="csv-import">CSV Import</option>
           <option value="manual">Manual / unknown</option>
         </select>
       </div>
@@ -977,11 +1094,14 @@ body, #header, #sidebar, #list-wrap, #detail, .entry-row,
     <div id="list-wrap">
       <!-- No file state -->
       <div id="no-file">
-        <div class="drop-zone" id="drop-zone" onclick="triggerImport()">
+        <div class="drop-zone" id="drop-zone">
           <div class="drop-zone-icon">📚</div>
           <h2>Open a BibTeX Library</h2>
-          <p>Drop your .bib file here or click to browse.<br>Supports large collections — 10,000+ entries.</p>
-          <button class="hbtn primary" style="margin: 0 auto; display: flex;">Browse for .bib file</button>
+          <p>Drop a <strong>.bib</strong> or <strong>.csv</strong> file here, or click to browse.<br>Supports large collections — 10,000+ entries.</p>
+          <div style="display:flex;gap:8px;justify-content:center;margin-bottom:4px;">
+            <button class="hbtn primary" style="display:flex;" onclick="triggerImport()">Browse for .bib file</button>
+            <button class="hbtn" style="display:flex;" onclick="triggerCsvImport()">Import .csv</button>
+          </div>
           <div class="drop-zone-sub" id="drop-zone-sub">Or start fresh and add entries manually via DOI lookup</div>
         </div>
         <div id="autoload-status">
@@ -1486,10 +1606,59 @@ body, #header, #sidebar, #list-wrap, #detail, .entry-row,
         <tr><td>Save button</td><td>Write-back via File System API (Chrome/Edge)</td></tr>
         <tr><td>Export .bib</td><td>Download full library as .bib file</td></tr>
         <tr><td>Drag &amp; drop</td><td>Import .bib file onto the landing screen</td></tr>
+        <tr><td>Import .csv</td><td>Import CSV with header mapping dialog</td></tr>
+        <tr><td colspan="2" class="shortcut-section">Analytics</td></tr>
+        <tr><td>Insights button</td><td>6-tab library analytics (Age, Authors, Venues, JEL, Quality)</td></tr>
       </table>
     </div>
     <div class="modal-footer">
       <button class="modal-btn secondary" onclick="closeModal('shortcuts-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- CSV MAPPING MODAL -->
+<div class="modal-overlay" id="csv-mapping-modal">
+  <div class="modal" style="width:660px;max-height:85vh;">
+    <div class="modal-header">
+      <div class="modal-title">Map CSV Columns → BibTeX Fields</div>
+      <div class="modal-close" onclick="closeModal('csv-mapping-modal')">✕</div>
+    </div>
+    <div class="modal-body" id="csv-mapping-body" style="max-height:calc(85vh - 130px);overflow-y:auto;">
+    </div>
+    <div class="modal-footer">
+      <span id="csv-import-count" style="font-family:var(--mono);font-size:12px;color:var(--text3);margin-right:auto;"></span>
+      <button class="modal-btn secondary" onclick="closeModal('csv-mapping-modal')">Cancel</button>
+      <button class="modal-btn primary" id="csv-import-btn" onclick="executeCsvImport()">Import</button>
+    </div>
+  </div>
+</div>
+
+<!-- INSIGHTS MODAL -->
+<div class="modal-overlay" id="insights-modal">
+  <div class="modal" style="width:640px;max-height:85vh;">
+    <div class="modal-header">
+      <div class="modal-title">Library Insights</div>
+      <div class="modal-close" onclick="closeModal('insights-modal')">✕</div>
+    </div>
+    <div class="modal-body" style="max-height:calc(85vh - 120px);overflow-y:auto;">
+      <div class="insights-tabs">
+        <div class="insights-tab active" onclick="switchInsightsTab('overview')">Overview</div>
+        <div class="insights-tab" onclick="switchInsightsTab('age')">Citation Age</div>
+        <div class="insights-tab" onclick="switchInsightsTab('authors')">Authors</div>
+        <div class="insights-tab" onclick="switchInsightsTab('venues')">Venues</div>
+        <div class="insights-tab" onclick="switchInsightsTab('jel')">JEL Coverage</div>
+        <div class="insights-tab" onclick="switchInsightsTab('quality')">Quality</div>
+      </div>
+      <div id="insights-panel-overview"  class="insights-panel active"></div>
+      <div id="insights-panel-age"       class="insights-panel"></div>
+      <div id="insights-panel-authors"   class="insights-panel"></div>
+      <div id="insights-panel-venues"    class="insights-panel"></div>
+      <div id="insights-panel-jel"       class="insights-panel"></div>
+      <div id="insights-panel-quality"   class="insights-panel"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn secondary" onclick="closeModal('insights-modal')">Close</button>
     </div>
   </div>
 </div>
@@ -3662,6 +3831,8 @@ function init() {
       closeModal('stats-modal');
       closeModal('fnr-modal');
       closeModal('shortcuts-modal');
+      closeModal('insights-modal');
+      closeModal('csv-mapping-modal');
     }
     if ((e.metaKey||e.ctrlKey) && e.key==='s') {
       e.preventDefault();
@@ -3682,10 +3853,21 @@ function init() {
   dropZone.addEventListener('drop', e=>{
     e.preventDefault();
     const file = e.dataTransfer?.files[0];
-    if (file && file.name.endsWith('.bib')) {
-      const fakeInput = { files: [file] };
-      handleFileImport(fakeInput);
-    } else toast('Please drop a .bib file.','error');
+    if (!file) return;
+    if (file.name.endsWith('.bib')) {
+      handleFileImport({ files: [file] });
+    } else if (file.name.endsWith('.csv')) {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const { headers, rows } = parseCSVText(ev.target.result);
+          openCsvMappingModal(headers, rows);
+        } catch(err) { toast('CSV parse error: ' + err.message, 'error'); }
+      };
+      reader.readAsText(file);
+    } else {
+      toast('Please drop a .bib or .csv file.', 'error');
+    }
   });
 
   // Close modal on overlay click
@@ -3742,7 +3924,435 @@ function init() {
     }
   });
 
-  console.log('BibForge — Keyboard shortcuts:\n  Ctrl/Cmd+D  Quick add via DOI\n  Ctrl/Cmd+F  Focus search\n  Ctrl/Cmd+S  Save to file (or save entry while editing)\n  Ctrl/Cmd+H  Find & Replace\n  ↑↓          Navigate entries\n  Escape      Cancel / close\n\n  Toolbar: Save · Duplicate · Stats · Find & Replace · Shortcuts\n\n  Auto-load path: ' + (BIBFORGE_CONFIG.autoLoad || 'disabled — set BIBFORGE_CONFIG.autoLoad to enable'));
+  console.log('BibForge v1.0 — Keyboard shortcuts:\n  Ctrl/Cmd+D  Quick add via DOI\n  Ctrl/Cmd+F  Focus search\n  Ctrl/Cmd+S  Save to file (or save entry while editing)\n  Ctrl/Cmd+H  Find & Replace\n  ↑↓          Navigate entries\n  Escape      Cancel / close\n\n  Toolbar: Save · Duplicate · Stats · Insights · Find & Replace · Shortcuts\n  Import: .bib file or .csv (with column mapping dialog)\n\n  Auto-load path: ' + (BIBFORGE_CONFIG.autoLoad || 'disabled — set BIBFORGE_CONFIG.autoLoad to enable'));
+
+// ════════════════════════════════════════════════════
+//  CSV IMPORT — PARSE + COLUMN MAPPING
+// ════════════════════════════════════════════════════
+
+const CSV_AUTO_MAP = {
+  'author':'author','authors':'author','creator':'author','created by':'author',
+  'editor':'editor','editors':'editor',
+  'title':'title','article title':'title',
+  'year':'year','date':'year','published':'year','publication year':'year',
+  'publication date':'year','publish year':'year',
+  'journal':'journal','journal name':'journal','publication':'journal',
+  'publication title':'journal',
+  'booktitle':'booktitle','book title':'booktitle','book':'booktitle',
+  'conference':'booktitle',
+  'volume':'volume','volume number':'volume',
+  'issue':'number','number':'number','issue number':'number',
+  'pages':'pages','page':'pages','page range':'pages','pp':'pages',
+  'doi':'doi','isbn':'isbn','isbn-13':'isbn','isbn13':'isbn','isbn 13':'isbn',
+  'issn':'issn','url':'url','link':'url','uri':'url',
+  'publisher':'publisher','address':'address','city':'address','location':'address',
+  'edition':'edition','abstract':'abstract','summary':'abstract',
+  'keywords':'keywords','tags':'keywords','subjects':'keywords',
+  'note':'note','notes':'note','series':'series','series title':'series',
+  'type':'type','entry type':'type','item type':'type','kind':'type',
+  'key':'key','citation key':'key','item key':'key','zotero key':'key',
+};
+
+function csvAutoDetect(header) {
+  const norm = header.toLowerCase().trim().replace(/[_\-\/]+/g,' ').replace(/[\[\]()]/g,'');
+  return CSV_AUTO_MAP[norm] || null;
+}
+
+function parseCSVText(text) {
+  const CRLF = text.includes('\r\n') ? '\r\n' : '\n';
+  const lines = text.split(CRLF).filter(l => l.trim());
+  if (lines.length < 2) throw new Error('CSV needs a header row and at least one data row');
+  const headers = parseCSVLine(lines[0]);
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const vals = parseCSVLine(lines[i]);
+    if (vals.every(v => !v.trim())) continue; // skip blank rows
+    const obj = {};
+    headers.forEach((h,idx) => { obj[h] = (vals[idx] || '').trim(); });
+    rows.push(obj);
+  }
+  return { headers, rows };
+}
+
+function parseCSVLine(line) {
+  const out = []; let cur = ''; let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i], nx = line[i+1];
+    if (c === '"') { if (inQ && nx === '"') { cur += '"'; i++; } else { inQ = !inQ; } }
+    else if (c === ',' && !inQ) { out.push(cur.trim()); cur = ''; }
+    else { cur += c; }
+  }
+  out.push(cur.trim());
+  return out;
+}
+
+let csvParsedData = null; // { headers, rows, mapping }
+
+function triggerCsvImport() {
+  document.getElementById('csv-file-input').click();
+}
+
+function handleCsvFile(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const { headers, rows } = parseCSVText(ev.target.result);
+      openCsvMappingModal(headers, rows);
+    } catch(err) { toast('CSV parse error: ' + err.message, 'error'); }
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+const BIB_FIELDS = ['— skip —','type','key','title','author','editor','year','journal',
+  'booktitle','volume','number','pages','publisher','address','edition',
+  'doi','isbn','issn','url','abstract','keywords','note','series'];
+
+function openCsvMappingModal(headers, rows) {
+  csvParsedData = { headers, rows, mapping: {} };
+  headers.forEach(h => { csvParsedData.mapping[h] = csvAutoDetect(h) || ''; });
+
+  const body = document.getElementById('csv-mapping-body');
+  let html = '<p style="font-family:var(--mono);font-size:12px;color:var(--text3);margin-bottom:12px;">Each CSV column maps to one BibTeX field. Unmapped columns are skipped. Sample values shown in italics.</p>';
+
+  headers.forEach(h => {
+    const sample = (rows[0]?.[h] || '').slice(0, 40);
+    const auto = csvParsedData.mapping[h];
+    html += `<div class="csv-map-row">
+      <div class="csv-col-name" title="${h}">${h}</div>
+      <div class="csv-col-arrow">→</div>
+      <select class="csv-map-select" data-col="${h.replace(/"/g,'&quot;')}" onchange="csvUpdateMap(this)">
+        ${BIB_FIELDS.map(f => `<option value="${f==='— skip —'?'':f}"${auto===(f==='— skip —'?'':f)?' selected':''}>${f}</option>`).join('')}
+      </select>
+      <div class="csv-sample">${sample}</div>
+    </div>`;
+  });
+
+  body.innerHTML = html;
+  document.getElementById('csv-import-count').textContent = `${rows.length} rows detected`;
+  openModal('csv-mapping-modal');
+}
+
+function csvUpdateMap(sel) {
+  const col = sel.getAttribute('data-col');
+  if (csvParsedData) csvParsedData.mapping[col] = sel.value;
+}
+
+const CSV_TYPE_MAP = {
+  'article':'article','journal article':'article','journal':'article',
+  'book':'book','edited book':'book','book section':'inbook','chapter':'inbook',
+  'book chapter':'inbook','collection':'incollection','conference paper':'inproceedings',
+  'conference':'inproceedings','inproceedings':'inproceedings','proceedings':'inproceedings',
+  'report':'techreport','technical report':'techreport','techreport':'techreport',
+  'thesis':'phdthesis','dissertation':'phdthesis','phd':'phdthesis','working paper':'working',
+  'working':'working','preprint':'working','misc':'misc','other':'misc',
+};
+
+function executeCsvImport() {
+  if (!csvParsedData) return;
+  const { rows, mapping } = csvParsedData;
+  const added = []; const renamedKeys = [];
+
+  rows.forEach((row, idx) => {
+    const entry = { type: 'article', key: '', fields: {} };
+    for (const [col, field] of Object.entries(mapping)) {
+      if (!field) continue;
+      const val = (row[col] || '').trim(); if (!val) continue;
+      if (field === 'type') {
+        entry.type = CSV_TYPE_MAP[val.toLowerCase()] || 'article';
+      } else if (field === 'key') {
+        entry.key = val;
+      } else {
+        entry.fields[field] = val;
+      }
+    }
+    if (!entry.key) {
+      const gen = makeKey(entry.fields.author||entry.fields.editor||'',
+                          entry.fields.year||'', entry.fields.title||'');
+      entry.key = gen || `csv_row_${idx+1}`;
+    }
+    entry.fields.datasource = 'csv-import';
+
+    let k = entry.key; let suf = 1;
+    const allKeys = new Set([...entries.map(e=>e.key), ...added.map(e=>e.key)]);
+    while (allKeys.has(k)) { k = entry.key + String.fromCharCode(96 + suf); suf++; }
+    if (k !== entry.key) renamedKeys.push(k);
+    entry.key = k;
+    added.push(entry);
+  });
+
+  entries.unshift(...added);
+  closeModal('csv-mapping-modal');
+  csvParsedData = null;
+  document.getElementById('btn-export').disabled = false;
+  buildSidebarFilters();
+  runFilter();
+
+  let msg = `Imported ${added.length} entries from CSV.`;
+  if (renamedKeys.length) msg += ` (${renamedKeys.length} key collision${renamedKeys.length>1?'s':''} auto-resolved)`;
+  toast(msg, 'success');
+  setToolbarStatus(`CSV: ${added.length} entries imported`, 'ok');
+}
+
+// ════════════════════════════════════════════════════
+//  LIBRARY INSIGHTS — ANALYTICS ENGINE
+// ════════════════════════════════════════════════════
+let insightsTabActive = 'overview';
+
+function switchInsightsTab(name) {
+  insightsTabActive = name;
+  document.querySelectorAll('.insights-tab').forEach((t,i) => {
+    const tabs = ['overview','age','authors','venues','jel','quality'];
+    t.classList.toggle('active', tabs[i] === name);
+  });
+  document.querySelectorAll('.insights-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('insights-panel-' + name).classList.add('active');
+}
+
+function openInsightsModal() {
+  if (!entries.length) { toast('Load a library first.','info'); return; }
+  insightsTabActive = 'overview';
+  // Reset tabs to overview
+  document.querySelectorAll('.insights-tab').forEach((t,i) => t.classList.toggle('active', i===0));
+  document.querySelectorAll('.insights-panel').forEach((p,i) => p.classList.toggle('active', i===0));
+  renderInsightsOverview();
+  renderInsightsAge();
+  renderInsightsAuthors();
+  renderInsightsVenues();
+  renderInsightsJel();
+  renderInsightsQuality();
+  openModal('insights-modal');
+}
+
+// ── OVERVIEW ──
+function renderInsightsOverview() {
+  const total = entries.length;
+  const currentYear = new Date().getFullYear();
+  const withJel  = entries.filter(e => fmt(e,'jel')).length;
+  const withLoc  = entries.filter(e => fmt(e,'lcc')).length;
+  const withDoi  = entries.filter(e => fmt(e,'doi')).length;
+  const withAbst = entries.filter(e => fmt(e,'abstract')).length;
+  const recent   = entries.filter(e => { const y=parseInt(fmt(e,'year')); return y>=(currentYear-5); }).length;
+
+  const years = entries.map(e=>parseInt(fmt(e,'year'))).filter(y=>y>1000&&y<=currentYear);
+  const medianAge = years.length ? (() => {
+    const sorted = years.map(y=>currentYear-y).sort((a,b)=>a-b);
+    return sorted[Math.floor(sorted.length/2)];
+  })() : '–';
+
+  const sources = {};
+  entries.forEach(e => { const ds=fmt(e,'datasource')||'manual'; sources[ds]=(sources[ds]||0)+1; });
+
+  const typeCounts = {};
+  entries.forEach(e => { typeCounts[e.type]=(typeCounts[e.type]||0)+1; });
+  const topType = Object.entries(typeCounts).sort((a,b)=>b[1]-a[1])[0];
+
+  document.getElementById('insights-panel-overview').innerHTML = `
+    <div class="ins-stat-grid">
+      <div class="ins-stat"><div class="ins-stat-label">Total Entries</div><div class="ins-stat-val">${total.toLocaleString()}</div></div>
+      <div class="ins-stat"><div class="ins-stat-label">JEL Classified</div><div class="ins-stat-val blue">${Math.round(withJel/total*100)}%</div><div class="ins-stat-sub">${withJel.toLocaleString()} entries</div></div>
+      <div class="ins-stat"><div class="ins-stat-label">LOC Classified</div><div class="ins-stat-val green">${Math.round(withLoc/total*100)}%</div><div class="ins-stat-sub">${withLoc.toLocaleString()} entries</div></div>
+      <div class="ins-stat"><div class="ins-stat-label">Median Age</div><div class="ins-stat-val">${medianAge}<span style="font-size:14px;font-weight:400"> yr</span></div></div>
+      <div class="ins-stat"><div class="ins-stat-label">Recent (≤5yr)</div><div class="ins-stat-val">${Math.round(recent/total*100)}%</div><div class="ins-stat-sub">${recent.toLocaleString()} entries</div></div>
+      <div class="ins-stat"><div class="ins-stat-label">With DOI</div><div class="ins-stat-val">${Math.round(withDoi/total*100)}%</div><div class="ins-stat-sub">${withDoi.toLocaleString()} entries</div></div>
+    </div>
+    <div class="ins-section-title">Datasource Breakdown</div>
+    ${Object.entries(sources).sort((a,b)=>b[1]-a[1]).map(([ds,c])=>
+      `<div class="ins-bar-row">
+        <div class="ins-bar-label">${{crossref:'CrossRef',openlibrary:'Open Library',googlebooks:'Google Books','csv-import':'CSV Import',manual:'Manual'}[ds]||ds}</div>
+        <div class="ins-bar-track"><div class="ins-bar-fill blue" style="width:${Math.round(c/total*100)}%"></div></div>
+        <div class="ins-bar-count">${c.toLocaleString()}</div>
+      </div>`).join('')}
+  `;
+}
+
+// ── CITATION AGE ──
+function renderInsightsAge() {
+  const currentYear = new Date().getFullYear();
+  const years = entries.map(e=>parseInt(fmt(e,'year'))).filter(y=>y>1000&&y<=currentYear+1);
+  if (!years.length) { document.getElementById('insights-panel-age').innerHTML='<p style="color:var(--text3)">No year data.</p>'; return; }
+
+  const ages = years.map(y=>currentYear-y);
+  const sorted = [...ages].sort((a,b)=>a-b);
+  const median = sorted[Math.floor(sorted.length/2)];
+  const avg = (ages.reduce((a,b)=>a+b,0)/ages.length).toFixed(1);
+  const oldest = Math.max(...ages);
+  const newest = Math.min(...ages);
+
+  // Year histogram — 20 buckets
+  const minY = Math.min(...years); const maxY = Math.max(...years);
+  const span = maxY - minY + 1; const buckets = Math.min(40, span);
+  const bucketSize = span / buckets;
+  const hist = new Array(buckets).fill(0);
+  years.forEach(y => { const b=Math.min(Math.floor((y-minY)/bucketSize), buckets-1); hist[b]++; });
+  const maxH = Math.max(...hist);
+
+  // Decade breakdown
+  const decades = {};
+  years.forEach(y => { const d=Math.floor(y/10)*10; decades[d]=(decades[d]||0)+1; });
+  const decSorted = Object.entries(decades).sort((a,b)=>b[1]-a[1]).slice(0,8);
+
+  document.getElementById('insights-panel-age').innerHTML = `
+    <div class="ins-stat-grid">
+      <div class="ins-stat"><div class="ins-stat-label">Median Age</div><div class="ins-stat-val">${median} yr</div></div>
+      <div class="ins-stat"><div class="ins-stat-label">Average Age</div><div class="ins-stat-val">${avg} yr</div></div>
+      <div class="ins-stat"><div class="ins-stat-label">Oldest Entry</div><div class="ins-stat-val">${currentYear-oldest}</div></div>
+    </div>
+    <div class="ins-section-title">Publication Year Distribution (${minY}–${maxY})</div>
+    <div class="ins-year-chart">
+      ${hist.map((h,i)=>`<div class="ins-year-bar" style="height:${Math.round(h/maxH*100)}%" title="${Math.round(minY+i*bucketSize)}: ${h} entries"></div>`).join('')}
+    </div>
+    <div class="ins-year-axis"><span>${minY}</span><span>${Math.round((minY+maxY)/2)}</span><span>${maxY}</span></div>
+    <div class="ins-section-title">Top Decades</div>
+    ${decSorted.map(([d,c])=>`<div class="ins-bar-row">
+      <div class="ins-bar-label">${d}s</div>
+      <div class="ins-bar-track"><div class="ins-bar-fill" style="width:${Math.round(c/years.length*100)}%"></div></div>
+      <div class="ins-bar-count">${c}</div>
+    </div>`).join('')}
+  `;
+}
+
+// ── AUTHORS ──
+function renderInsightsAuthors() {
+  const authorCount = {};
+  entries.forEach(e => {
+    const a = fmt(e,'author') || fmt(e,'editor'); if (!a) return;
+    a.split(/\s+and\s+/i).forEach(p => {
+      const sn = p.split(',')[0].trim().replace(/[{}\]/g,'');
+      if (sn.length > 1) authorCount[sn] = (authorCount[sn]||0) + 1;
+    });
+  });
+  const top = Object.entries(authorCount).sort((a,b)=>b[1]-a[1]).slice(0,20);
+  const maxC = top[0]?.[1] || 1;
+  const soloAuthors = Object.values(authorCount).filter(c=>c===1).length;
+  const totalAuthors = Object.keys(authorCount).length;
+  const multiAuthors = entries.filter(e=>(fmt(e,'author')||'').split(/\s+and\s+/i).length>1).length;
+
+  document.getElementById('insights-panel-authors').innerHTML = `
+    <div class="ins-stat-grid">
+      <div class="ins-stat"><div class="ins-stat-label">Unique Authors</div><div class="ins-stat-val">${totalAuthors.toLocaleString()}</div></div>
+      <div class="ins-stat"><div class="ins-stat-label">Multi-Author</div><div class="ins-stat-val blue">${Math.round(multiAuthors/entries.length*100)}%</div><div class="ins-stat-sub">of entries</div></div>
+      <div class="ins-stat"><div class="ins-stat-label">One Entry Only</div><div class="ins-stat-val">${Math.round(soloAuthors/totalAuthors*100)}%</div><div class="ins-stat-sub">of authors</div></div>
+    </div>
+    <div class="ins-section-title">Top Authors (by entry count)</div>
+    ${top.map(([author,c])=>`<div class="ins-bar-row">
+      <div class="ins-bar-label" title="${author}">${author}</div>
+      <div class="ins-bar-track"><div class="ins-bar-fill" style="width:${Math.round(c/maxC*100)}%"></div></div>
+      <div class="ins-bar-count">${c}</div>
+    </div>`).join('')}
+  `;
+}
+
+// ── VENUES ──
+function renderInsightsVenues() {
+  const venues = {};
+  entries.forEach(e => {
+    const v = stripBraces(fmt(e,'journal') || fmt(e,'booktitle') || '').trim();
+    if (v) venues[v] = (venues[v]||0)+1;
+  });
+  const top = Object.entries(venues).sort((a,b)=>b[1]-a[1]).slice(0,20);
+  const maxC = top[0]?.[1] || 1;
+  const withVenue = Object.values(venues).reduce((a,b)=>a+b,0);
+
+  document.getElementById('insights-panel-venues').innerHTML = `
+    <div class="ins-stat-grid">
+      <div class="ins-stat"><div class="ins-stat-label">Unique Venues</div><div class="ins-stat-val">${Object.keys(venues).length.toLocaleString()}</div></div>
+      <div class="ins-stat"><div class="ins-stat-label">With Venue</div><div class="ins-stat-val blue">${Math.round(withVenue/entries.length*100)}%</div><div class="ins-stat-sub">of entries</div></div>
+      <div class="ins-stat"><div class="ins-stat-label">Top Venue</div><div class="ins-stat-val green">${top[0]?.[1]||0}</div><div class="ins-stat-sub">entries</div></div>
+    </div>
+    <div class="ins-section-title">Top Journals / Venues</div>
+    ${top.map(([v,c])=>`<div class="ins-bar-row">
+      <div class="ins-bar-label" title="${v}">${v.length>22?v.slice(0,22)+'…':v}</div>
+      <div class="ins-bar-track"><div class="ins-bar-fill blue" style="width:${Math.round(c/maxC*100)}%"></div></div>
+      <div class="ins-bar-count">${c}</div>
+    </div>`).join('')}
+  `;
+}
+
+// ── JEL COVERAGE ──
+function renderInsightsJel() {
+  const jelCodes = {};
+  entries.forEach(e => {
+    (fmt(e,'jel')||'').split(/[;,\s]+/).forEach(c => {
+      c = c.trim().toUpperCase();
+      if (c.length >= 2) jelCodes[c] = (jelCodes[c]||0)+1;
+    });
+  });
+  const topJel = Object.entries(jelCodes).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  const maxC = topJel[0]?.[1] || 1;
+
+  // Letter-level roll-up
+  const letters = {};
+  Object.entries(jelCodes).forEach(([c,n]) => {
+    const l = c[0]; letters[l] = (letters[l]||0)+n;
+  });
+  const topLetters = Object.entries(letters).sort((a,b)=>b[1]-a[1]).slice(0,8);
+
+  const withJel = entries.filter(e=>fmt(e,'jel')).length;
+
+  document.getElementById('insights-panel-jel').innerHTML = `
+    <div class="ins-stat-grid">
+      <div class="ins-stat"><div class="ins-stat-label">JEL Classified</div><div class="ins-stat-val">${withJel.toLocaleString()}</div><div class="ins-stat-sub">${Math.round(withJel/entries.length*100)}% of library</div></div>
+      <div class="ins-stat"><div class="ins-stat-label">Unique Codes</div><div class="ins-stat-val blue">${Object.keys(jelCodes).length}</div></div>
+      <div class="ins-stat"><div class="ins-stat-label">Categories Used</div><div class="ins-stat-val green">${Object.keys(letters).length}</div></div>
+    </div>
+    <div class="ins-section-title">Top JEL Codes</div>
+    ${topJel.map(([c,n])=>`<div class="ins-bar-row">
+      <div class="ins-bar-label"><span class="ins-jel-cell">${c}</span> <span style="font-size:12px;color:var(--text3)">${(JEL_MAP[c]||'').slice(0,28)}</span></div>
+      <div class="ins-bar-track"><div class="ins-bar-fill blue" style="width:${Math.round(n/maxC*100)}%"></div></div>
+      <div class="ins-bar-count">${n}</div>
+    </div>`).join('')}
+    <div class="ins-section-title">Category Roll-up</div>
+    ${topLetters.map(([l,n])=>`<div class="ins-bar-row">
+      <div class="ins-bar-label">${l} — ${JEL_MAP[l]||''}</div>
+      <div class="ins-bar-track"><div class="ins-bar-fill green" style="width:${Math.round(n/topLetters[0][1]*100)}%"></div></div>
+      <div class="ins-bar-count">${n}</div>
+    </div>`).join('')}
+  `;
+}
+
+// ── METADATA QUALITY ──
+function renderInsightsQuality() {
+  const QUALITY_FIELDS = ['title','author','year','journal','doi','abstract','keywords','publisher'];
+  const scores = entries.map(e => {
+    const filled = QUALITY_FIELDS.filter(f=>fmt(e,f)).length;
+    return Math.round(filled/QUALITY_FIELDS.length*100);
+  });
+  const avg = Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+  const excellent = scores.filter(s=>s>=87).length;
+  const good      = scores.filter(s=>s>=62&&s<87).length;
+  const partial   = scores.filter(s=>s>=37&&s<62).length;
+  const sparse    = scores.filter(s=>s<37).length;
+
+  // Per-field fill rate
+  const fieldFill = QUALITY_FIELDS.map(f => ({
+    field: f, count: entries.filter(e=>fmt(e,f)).length,
+    pct: Math.round(entries.filter(e=>fmt(e,f)).length/entries.length*100)
+  })).sort((a,b)=>b.count-a.count);
+
+  document.getElementById('insights-panel-quality').innerHTML = `
+    <div class="ins-stat-grid">
+      <div class="ins-stat"><div class="ins-stat-label">Avg Quality</div><div class="ins-stat-val">${avg}%</div></div>
+      <div class="ins-stat"><div class="ins-stat-label">Excellent (≥87%)</div><div class="ins-stat-val green">${excellent.toLocaleString()}</div><div class="ins-stat-sub">${Math.round(excellent/entries.length*100)}%</div></div>
+      <div class="ins-stat"><div class="ins-stat-label">Needs Review</div><div class="ins-stat-val blue">${(partial+sparse).toLocaleString()}</div><div class="ins-stat-sub">&lt;62% filled</div></div>
+    </div>
+    <div class="ins-section-title">Quality Distribution</div>
+    ${[['Excellent ≥87%',excellent,'green'],['Good 62–86%',good,''],['Partial 37–61%',partial,'blue'],['Sparse <37%',sparse,'']].map(([label,n,cls])=>`
+      <div class="ins-bar-row">
+        <div class="ins-bar-label">${label}</div>
+        <div class="ins-bar-track"><div class="ins-bar-fill ${cls}" style="width:${Math.round(n/entries.length*100)}%"></div></div>
+        <div class="ins-bar-count">${n}</div>
+      </div>`).join('')}
+    <div class="ins-section-title">Field Fill Rate</div>
+    ${fieldFill.map(({field,count,pct})=>`<div class="ins-bar-row">
+      <div class="ins-bar-label" style="font-family:var(--mono)">${field}</div>
+      <div class="ins-bar-track"><div class="ins-bar-fill" style="width:${pct}%;background:${pct>80?'var(--green)':pct>50?'var(--amber)':'var(--red)'}"></div></div>
+      <div class="ins-bar-count">${pct}%</div>
+    </div>`).join('')}
+  `;
+}
+
 
   // Responsive sidebar + mobile panels
   initResponsive();

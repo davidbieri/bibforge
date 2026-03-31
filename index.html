@@ -1,1 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BibForge — Academic BibTeX Library Manager</title>
+<meta name="description" content="Single-file, client-side BibTeX reference manager. Full-text search, DOI/ISBN metadata fetch, JEL classification, LOC subclassing, virtual scrolling for 10,000+ entries. No build step. No server. GitHub Pages ready.">
+<meta name="keywords" content="BibTeX editor, reference manager, academic bibliography, JabRef alternative, Zotero BibTeX, Mendeley alternative, JEL classification, Library of Congress, DOI lookup, ISBN lookup, CrossRef, Open Library, citation key, LaTeX bibliography, Better BibTeX, bibliography manager, free reference manager, open source reference manager, Paperpile alternative, Citavi alternative, EndNoteAlternative, BibDesk alternative, academic library management, CSV import bibliography">
+<meta name="author" content="David Bieri, Virginia Tech SPIA">
+<meta property="og:title" content="BibForge — Academic BibTeX Library Manager">
+<meta property="og:description" content="Browser-native BibTeX reference manager. DOI/ISBN metadata, JEL auto-classification, LOC subclassing, virtual scrolling for 10,000+ entries. Single file, no build step.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://davidbieri.github.io/bibforge/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="BibForge — Academic BibTeX Library Manager">
+<meta name="twitter:description" content="Browser-native BibTeX reference manager for large academic collections.">
+<link rel="canonical" href="https://davidbieri.github.io/bibforge/">
+<!-- GoatCounter analytics — privacy-friendly, no cookies -->
+<script data-goatcounter="https://bibforge.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0d0f0e;
+    --bg2:       #131614;
+    --bg3:       #191c1a;
+    --border:    #252926;
+    --border2:   #2e322f;
+    --muted:     #5a6159;
+    --body:      #9aab99;
+    --text:      #d4ddd3;
+    --head:      #eef3ed;
+    --amber:     #d4962a;
+    --amber-dim: #8a5e12;
+    --teal:      #4aad94;
+    --teal-dim:  #1d5c4d;
+    --blue:      #6baed6;
+    --green:     #74c476;
+    --font-serif: 'DM Serif Display', Georgia, serif;
+    --font-body:  'Source Serif 4', Georgia, serif;
+    --font-mono:  'DM Mono', 'Fira Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--body); font-family: var(--font-body); font-size: 15px; line-height: 1.7; -webkit-font-smoothing: antialiased; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; }
 
+  .topbar { position: sticky; top: 0; z-index: 50; background: rgba(13,15,14,.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 44px; font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .04em; color: var(--muted); }
+  .topbar-left { display: flex; align-items: center; gap: 1.2rem; }
+  .topbar-brand { color: var(--body); font-weight: 500; }
+  .topbar-sep { color: var(--border2); }
+  .topbar-right { display: flex; align-items: center; gap: 1.2rem; }
+  .topbar a { color: var(--muted); text-decoration: none; }
+  .topbar a:hover { color: var(--amber); }
+  .topbar-version { background: var(--bg3); border: 1px solid var(--border2); padding: 1px 7px; border-radius: 3px; color: var(--amber); font-size: 10.5px; }
+  .topbar-launch { background: var(--amber-dim); border: 1px solid var(--amber); color: var(--amber) !important; padding: 3px 10px; border-radius: 3px; font-size: 11px; font-weight: 500; transition: background .15s; }
+  .topbar-launch:hover { background: var(--amber) !important; color: var(--bg) !important; }
+
+  .hero { position: relative; padding: 5rem 2rem 4rem; max-width: 900px; margin: 0 auto; }
+  .hero-eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; color: var(--teal); text-transform: uppercase; margin-bottom: 1.6rem; display: flex; align-items: center; gap: .6rem; }
+  .hero-eyebrow::before { content: ''; display: inline-block; width: 24px; height: 1px; background: var(--teal); }
+  .hero h1 { font-family: var(--font-serif); font-size: clamp(2.4rem, 5vw, 3.8rem); font-weight: 400; color: var(--head); line-height: 1.1; margin-bottom: .8rem; letter-spacing: -.01em; }
+  .hero h1 em { font-style: italic; color: var(--amber); }
+  .hero-sub { font-size: 17px; font-weight: 300; color: var(--body); max-width: 620px; margin-bottom: 2.4rem; line-height: 1.75; }
+  .hero-code { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); background: var(--bg3); border: 1px solid var(--border); display: inline-block; padding: 3px 10px; border-radius: 4px; margin-bottom: 2.8rem; }
+  .hero-pills { display: flex; flex-wrap: wrap; gap: .7rem; margin-bottom: 2.8rem; }
+  .pill { font-family: var(--font-mono); font-size: 12px; background: var(--bg3); border: 1px solid var(--border2); padding: 5px 12px; border-radius: 20px; color: var(--text); display: inline-flex; align-items: center; gap: .4rem; }
+  .pill .val { color: var(--amber); font-weight: 500; }
+  .pill.teal .val { color: var(--teal); }
+  .pill.blue .val { color: var(--blue); }
+  .pill.green .val { color: var(--green); }
+  .hero-actions { display: flex; align-items: center; gap: 1rem; }
+  .btn-primary { display: inline-flex; align-items: center; gap: .5rem; background: var(--amber); color: var(--bg); font-family: var(--font-mono); font-size: 12.5px; font-weight: 500; padding: 9px 20px; border-radius: 4px; text-decoration: none; letter-spacing: .02em; transition: background .15s, transform .1s; }
+  .btn-primary:hover { background: #e8a830; transform: translateY(-1px); }
+  .btn-secondary { display: inline-flex; align-items: center; gap: .5rem; color: var(--muted); font-family: var(--font-mono); font-size: 12px; text-decoration: none; border: 1px solid var(--border2); padding: 8px 16px; border-radius: 4px; transition: color .15s, border-color .15s; }
+  .btn-secondary:hover { color: var(--body); border-color: var(--muted); }
+  .hero-glow { position: absolute; top: 60px; left: -80px; width: 500px; height: 300px; background: radial-gradient(ellipse, rgba(74,173,148,.07) 0%, transparent 70%); pointer-events: none; }
+
+  .section-divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+  section { max-width: 900px; margin: 0 auto; padding: 3.5rem 2rem; }
+  .section-label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .12em; color: var(--muted); text-transform: uppercase; margin-bottom: 2rem; display: flex; align-items: center; gap: .6rem; }
+  .section-label::after { content: ''; flex: 1; border-top: 1px solid var(--border); }
+
+  .feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .feature-card { background: var(--bg2); padding: 1.5rem; position: relative; transition: background .15s; }
+  .feature-card:hover { background: var(--bg3); }
+  .fc-tag { font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; color: var(--muted); text-transform: uppercase; margin-bottom: .6rem; }
+  .fc-title { font-family: var(--font-serif); font-size: 17px; font-weight: 400; color: var(--head); margin-bottom: .5rem; }
+  .fc-body { font-size: 13.5px; color: var(--body); line-height: 1.6; }
+  .fc-accent { display: inline-block; width: 3px; height: 100%; position: absolute; left: 0; top: 0; bottom: 0; }
+  .fc-accent.amber { background: var(--amber); }
+  .fc-accent.teal  { background: var(--teal); }
+  .fc-accent.blue  { background: var(--blue); }
+  .fc-accent.green { background: var(--green); }
+  .fc-new { display: inline-block; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .06em; background: var(--teal-dim); color: var(--teal); border: 1px solid var(--teal); padding: 1px 5px; border-radius: 2px; margin-left: 6px; vertical-align: middle; }
+
+  .workflow { display: flex; flex-wrap: wrap; align-items: flex-start; }
+  .wf-step { flex: 1 1 150px; padding: 1.4rem 1.2rem; background: var(--bg2); border: 1px solid var(--border); border-radius: 4px; position: relative; }
+  .wf-step + .wf-step { margin-left: -1px; border-radius: 0; }
+  .wf-step:first-child { border-radius: 4px 0 0 4px; }
+  .wf-step:last-child  { border-radius: 0 4px 4px 0; }
+  .wf-num { font-family: var(--font-mono); font-size: 11px; color: var(--amber); margin-bottom: .4rem; }
+  .wf-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: .3rem; }
+  .wf-desc { font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+
+  .api-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .api-table th { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 400; border-bottom: 1px solid var(--border2); padding: 6px 12px 6px 0; text-align: left; }
+  .api-table td { padding: 8px 12px 8px 0; border-bottom: 1px solid var(--border); color: var(--body); vertical-align: top; }
+  .api-table tr:last-child td { border-bottom: none; }
+  .api-table .mono { font-family: var(--font-mono); font-size: 12px; color: var(--teal); }
+
+  .bib-block { background: var(--bg3); border: 1px solid var(--border2); border-radius: 6px; padding: 1.4rem 1.6rem; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.8; overflow-x: auto; }
+  .bib-type   { color: var(--amber); }
+  .bib-key    { color: var(--amber); }
+  .bib-field  { color: var(--blue); }
+  .bib-value  { color: var(--green); }
+  .bib-brace  { color: var(--muted); }
+  .bib-special { color: var(--teal); }
+
+  .key-chip { display: inline-flex; align-items: baseline; gap: .15em; font-family: var(--font-mono); font-size: 13px; background: var(--bg3); border: 1px solid var(--border2); padding: 4px 10px; border-radius: 4px; margin: .2rem; }
+  .key-chip .k-author { color: var(--amber); }
+  .key-chip .k-year   { color: var(--teal); }
+  .key-chip .k-word   { color: var(--green); }
+  .key-chip .k-sep    { color: var(--muted); }
+
+  .note-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 600px) { .note-grid { grid-template-columns: 1fr; } }
+  .note-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; padding: 1.2rem 1.4rem; }
+  .note-card h4 { font-family: var(--font-mono); font-size: 12px; color: var(--text); margin-bottom: .5rem; letter-spacing: .03em; }
+  .note-card p { font-size: 13px; color: var(--body); line-height: 1.6; }
+
+  .changelog-entry { margin-bottom: 1.5rem; }
+  .changelog-ver { font-family: var(--font-mono); font-size: 13px; color: var(--amber); margin-bottom: .4rem; }
+  .changelog-date { color: var(--muted); font-size: 12px; }
+  .changelog-list { list-style: none; padding: 0; }
+  .changelog-list li { font-size: 13.5px; color: var(--body); padding: 3px 0; padding-left: 1.2rem; position: relative; line-height: 1.6; }
+  .changelog-list li::before { content: '·'; position: absolute; left: 0; color: var(--muted); }
+
+  footer { max-width: 900px; margin: 0 auto; padding: 2rem 2rem 3rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+  footer .f-left { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); line-height: 1.9; }
+  footer .f-left strong { color: var(--body); }
+  footer .f-right { display: flex; flex-direction: column; align-items: flex-end; gap: .4rem; }
+  footer a { color: var(--muted); text-decoration: none; font-family: var(--font-mono); font-size: 11.5px; }
+  footer a:hover { color: var(--amber); }
+
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .55s ease, transform .55s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 680px) {
+    .topbar-right .hide-sm { display: none; }
+    .workflow { flex-direction: column; }
+    .wf-step + .wf-step { margin-left: 0; margin-top: -1px; border-radius: 0; }
+    .wf-step:first-child { border-radius: 4px 4px 0 0; }
+    .wf-step:last-child  { border-radius: 0 0 4px 4px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-brand">SPIA · VT</span>
+    <span class="topbar-sep">|</span>
+    <span>BibForge</span>
+    <span class="topbar-sep hide-sm">·</span>
+    <a href="#features" class="hide-sm">Features</a>
+    <a href="#workflow" class="hide-sm">Workflow</a>
+    <a href="#apis" class="hide-sm">APIs</a>
+    <a href="#changelog" class="hide-sm">Changelog</a>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-version">v1.0</span>
+    <a href="https://github.com/davidbieri/bibforge" class="hide-sm">GitHub ↗</a>
+    <a href="bibforge.html" class="topbar-launch">⟶ Launch</a>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-glow"></div>
+  <p class="hero-eyebrow">Academic Reference Management</p>
+  <h1>BibForge — <em>A Single-File<br>BibTeX Library Manager</em></h1>
+  <p class="hero-sub">Browser-native reference management for large academic collections. Full-text search, metadata fetching, JEL classification, LOC subclassing, CSV import with column mapping, six-panel library analytics, and virtual-scrolled rendering of 10,000+ entries — with no build step, no server, and no dependencies.</p>
+  <div class="hero-code">author:year:keyword — e.g.&nbsp;&nbsp;<span style="color:var(--amber)">muth</span><span style="color:var(--muted)">:</span><span style="color:var(--teal)">1969</span><span style="color:var(--muted)">:</span><span style="color:var(--green)">cities</span></div>
+  <div class="hero-pills">
+    <span class="pill"><span class="val">12,000</span> entries · no lag</span>
+    <span class="pill teal"><span class="val">3</span> metadata APIs</span>
+    <span class="pill blue"><span class="val">JEL</span> auto-classification</span>
+    <span class="pill green"><span class="val">CSV</span> import + mapping</span>
+    <span class="pill"><span class="val">Insights</span> · 6-panel analytics</span>
+    <span class="pill"><span class="val">0</span> dependencies</span>
+  </div>
+  <div class="hero-actions">
+    <a href="bibforge.html" class="btn-primary">⟶ Launch BibForge</a>
+    <a href="https://github.com/davidbieri/bibforge" class="btn-secondary">View on GitHub ↗</a>
+  </div>
+</div>
+
+<hr class="section-divider">
+
+<section id="features">
+  <p class="section-label reveal">Feature Set</p>
+  <div class="feature-grid reveal">
+
+    <div class="feature-card">
+      <div class="fc-accent amber"></div>
+      <div class="fc-tag">Import · Export</div>
+      <div class="fc-title">BibTeX I/O</div>
+      <div class="fc-body">Drop a <code style="font-family:var(--font-mono);font-size:12px;color:var(--teal)">.bib</code> file to import. Export the full library with all custom fields at any point. Handles nested braces, <code style="font-family:var(--font-mono);font-size:12px;color:var(--teal)">@string</code> macros, and malformed entries without halting.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="fc-accent amber"></div>
+      <div class="fc-tag">Import</div>
+      <div class="fc-title">CSV Import <span class="fc-new">v1.0</span></div>
+      <div class="fc-body">Import any CSV with a header mapping dialog. Each column is auto-detected against BibTeX fields — <code style="font-family:var(--font-mono);font-size:12px;color:var(--teal)">author</code>, <code style="font-family:var(--font-mono);font-size:12px;color:var(--teal)">title</code>, <code style="font-family:var(--font-mono);font-size:12px;color:var(--teal)">year</code>, etc. — with a sample value shown for each column. Duplicate keys auto-resolved. Entries stamped <code style="font-family:var(--font-mono);font-size:12px;color:var(--teal)">csv-import</code>.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="fc-accent amber"></div>
+      <div class="fc-tag">Search · Filter</div>
+      <div class="fc-title">Full-Text Search</div>
+      <div class="fc-body">Searches title, author, citation key, DOI, JEL codes, keywords, and <code style="font-family:var(--font-mono);font-size:12px;color:var(--teal)">datasource</code> simultaneously. Results update in under 200 ms. Sidebar filters by type, year range, JEL, LOC, and provenance.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="fc-accent teal"></div>
+      <div class="fc-tag">Metadata</div>
+      <div class="fc-title">DOI Quick-Add</div>
+      <div class="fc-body"><kbd style="font-family:var(--font-mono);font-size:11px;background:var(--bg3);border:1px solid var(--border2);padding:1px 5px;border-radius:2px;color:var(--text)">Cmd/Ctrl+D</kbd> — paste a DOI and BibForge fetches title, authors, year, journal, volume, pages, and abstract from CrossRef. Fastest path for any article with a DOI.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="fc-accent teal"></div>
+      <div class="fc-tag">Metadata</div>
+      <div class="fc-title">ISBN Lookup</div>
+      <div class="fc-body">Open Library first, Google Books as automatic fallback. Retrieves publisher, city, edition, LC classification, subjects, and page count. WorldCat link-out for anything not found via API.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="fc-accent blue"></div>
+      <div class="fc-tag">Classification</div>
+      <div class="fc-title">JEL Auto-Code</div>
+      <div class="fc-body">Fetches the full AEA EconLit classification tree and runs a keyword-scoring engine against the entry's title, abstract, and keywords. Returns the top 3 ranked chips with matched terms. Cached after first use.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="fc-accent blue"></div>
+      <div class="fc-tag">Classification</div>
+      <div class="fc-title">LOC Subclass</div>
+      <div class="fc-body">Active for book-type entries. Suggests up to 3 Library of Congress subclasses weighted toward HB–HX, HT, NA, JC, JS — economics, social science, urban planning, and political theory.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="fc-accent green"></div>
+      <div class="fc-tag">Analytics</div>
+      <div class="fc-title">Library Insights <span class="fc-new">v1.0</span></div>
+      <div class="fc-body">Six-panel analytics dashboard: <em>Overview</em> (datasource breakdown), <em>Citation Age</em> (decade histogram, median age), <em>Authors</em> (top 20 by frequency), <em>Venues</em> (journal concentration), <em>JEL Coverage</em> (heatmap + category roll-up), <em>Quality</em> (field fill rate per entry).</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="fc-accent green"></div>
+      <div class="fc-tag">Performance</div>
+      <div class="fc-title">Virtual Scrolling</div>
+      <div class="fc-body">Only visible rows are rendered — scrolling through 12,000 entries costs the same as scrolling through 50. Row height is fixed at 76px; the virtual list recalculates on filter and search changes.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="fc-accent green"></div>
+      <div class="fc-tag">Deployment</div>
+      <div class="fc-title">Auto-Load</div>
+      <div class="fc-body">Configure <code style="font-family:var(--font-mono);font-size:12px;color:var(--teal)">BIBFORGE_CONFIG.autoLoad</code> to a repo-relative path and the library fetches automatically on startup. Same-origin, no CORS, no auth. Works out of the box on GitHub Pages.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="fc-accent amber"></div>
+      <div class="fc-tag">UX</div>
+      <div class="fc-title">Raw BibTeX Pane</div>
+      <div class="fc-body">Collapsible syntax-highlighted view of the exact output written to the exported file. Entry type and key in amber, field names in blue, values in green. Read-only; updates as you navigate entries.</div>
+    </div>
+
+    <div class="feature-card">
+      <div class="fc-accent teal"></div>
+      <div class="fc-tag">Provenance</div>
+      <div class="fc-title"><code style="font-size:15px">datasource</code> Field</div>
+      <div class="fc-body">Every API-fetched entry is stamped: <code style="font-family:var(--font-mono);font-size:12px;color:var(--teal)">crossref</code>, <code style="font-family:var(--font-mono);font-size:12px;color:var(--teal)">openlibrary</code>, <code style="font-family:var(--font-mono);font-size:12px;color:var(--teal)">googlebooks</code>, <code style="font-family:var(--font-mono);font-size:12px;color:var(--teal)">csv-import</code>, or <code style="font-family:var(--font-mono);font-size:12px;color:var(--teal)">manual</code>. Written to the <code style="font-family:var(--font-mono);font-size:12px;color:var(--teal)">.bib</code> file. Filterable in sidebar.</div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<section id="guide">
+  <p class="section-label reveal">Citation Key Convention</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start" class="reveal">
+    <div>
+      <p style="font-size:14px;color:var(--body);margin-bottom:1.2rem;line-height:1.7">BibForge uses the <code style="font-family:var(--font-mono);font-size:12.5px;color:var(--teal)">author:year:keyword</code> convention — matching the Better BibTeX plugin pattern. Collision suffixes (<code style="font-family:var(--font-mono);font-size:12.5px;color:var(--teal)">smithb</code>, <code style="font-family:var(--font-mono);font-size:12.5px;color:var(--teal)">smithc</code>) appended automatically.</p>
+      <div style="margin-bottom:1.2rem">
+        <span class="key-chip"><span class="k-author">muth</span><span class="k-sep">:</span><span class="k-year">1969</span><span class="k-sep">:</span><span class="k-word">cities</span></span>
+        <span class="key-chip"><span class="k-author">alonso</span><span class="k-sep">:</span><span class="k-year">1964</span><span class="k-sep">:</span><span class="k-word">location</span></span>
+        <span class="key-chip"><span class="k-author">keynes</span><span class="k-sep">:</span><span class="k-year">1936</span><span class="k-sep">:</span><span class="k-word">employment</span></span>
+        <span class="key-chip"><span class="k-author">harvey</span><span class="k-sep">:</span><span class="k-year">1982</span><span class="k-sep">:</span><span class="k-word">limits</span></span>
+      </div>
+      <p style="font-family:var(--font-mono);font-size:11.5px;color:var(--muted);line-height:1.7">Better BibTeX pattern:<br><span style="color:var(--body)">[auth:lower]:[year]:[title:lower:clean:truncate=20]</span></p>
+    </div>
+    <div class="bib-block">
+<span class="bib-type">@article</span><span class="bib-brace">{</span><span class="bib-key">muth:1969:cities</span><span class="bib-brace">,</span>
+  <span class="bib-field">author</span>       = <span class="bib-brace">{</span><span class="bib-value">Muth, Richard F.</span><span class="bib-brace">},</span>
+  <span class="bib-field">title</span>        = <span class="bib-brace">{</span><span class="bib-value">Cities and Housing</span><span class="bib-brace">},</span>
+  <span class="bib-field">year</span>         = <span class="bib-brace">{</span><span class="bib-value">1969</span><span class="bib-brace">},</span>
+  <span class="bib-field">jel</span>          = <span class="bib-brace">{</span><span class="bib-special">R11; R31; H72</span><span class="bib-brace">},</span>
+  <span class="bib-field">lcc</span>          = <span class="bib-brace">{</span><span class="bib-special">HD</span><span class="bib-brace">},</span>
+  <span class="bib-field">datasource</span>   = <span class="bib-brace">{</span><span class="bib-special">crossref</span><span class="bib-brace">},</span>
+<span class="bib-brace">}</span>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<section id="workflow">
+  <p class="section-label reveal">Editing Cycle</p>
+  <div class="workflow reveal">
+    <div class="wf-step"><div class="wf-num">01</div><div class="wf-name">Open BibForge</div><div class="wf-desc">Library auto-loads from <code style="font-family:var(--font-mono);font-size:11px;color:var(--teal)">data/library.bib</code> via same-origin fetch</div></div>
+    <div class="wf-step"><div class="wf-num">02</div><div class="wf-name">Add / Edit</div><div class="wf-desc">Quick-add via DOI (<kbd style="font-family:var(--font-mono);font-size:11px">⌘D</kbd>), ISBN lookup, title search, or CSV import</div></div>
+    <div class="wf-step"><div class="wf-num">03</div><div class="wf-name">Classify</div><div class="wf-desc">Fetch JEL codes and LOC subclass — one click each; accept suggested chips</div></div>
+    <div class="wf-step"><div class="wf-num">04</div><div class="wf-name">Insights</div><div class="wf-desc">Check Library Insights for citation age, author frequency, quality score</div></div>
+    <div class="wf-step"><div class="wf-num">05</div><div class="wf-name">Export → Commit</div><div class="wf-desc">Export <code style="font-family:var(--font-mono);font-size:11px;color:var(--teal)">.bib</code>, commit to repo — every push is a dated snapshot</div></div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<section id="apis">
+  <p class="section-label reveal">Outbound Requests</p>
+  <p style="font-size:14px;color:var(--body);margin-bottom:1.5rem" class="reveal">All processing is client-side. No library data is ever transmitted. Outbound requests are limited to the following endpoints:</p>
+  <table class="api-table reveal">
+    <thead><tr><th>Endpoint</th><th>Triggered when</th><th>What is sent</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">api.crossref.org</td><td>DOI lookup (Tab 1 or Quick-Add)</td><td>The DOI only</td></tr>
+      <tr><td class="mono">openlibrary.org</td><td>ISBN or title lookup (Tab 2 / 3)</td><td>ISBN or search query</td></tr>
+      <tr><td class="mono">googleapis.com/books</td><td>Google Books lookup or fallback</td><td>ISBN or search query</td></tr>
+      <tr><td class="mono">aeaweb.org/econlit/…xml</td><td>First Fetch JEL click (cached)</td><td>Nothing (GET request)</td></tr>
+      <tr><td class="mono">gc.zgo.at/count.js</td><td>Page load (analytics)</td><td>Page URL, referrer (no cookies)</td></tr>
+      <tr><td class="mono">fonts.googleapis.com</td><td>App startup</td><td>Nothing (GET request)</td></tr>
+      <tr><td class="mono">same-repo .bib path</td><td>Auto-load on startup</td><td>Nothing (same-origin GET)</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:13px;color:var(--muted);margin-top:1rem">WorldCat opens in a new browser tab — no data passes through the app. GoatCounter collects no personal data and sets no cookies.</p>
+</section>
+
+<hr class="section-divider">
+
+<section id="changelog">
+  <p class="section-label reveal">Changelog</p>
+  <div class="reveal">
+
+    <div class="changelog-entry">
+      <div class="changelog-ver">v1.0 <span class="changelog-date">· March 2026</span></div>
+      <ul class="changelog-list">
+        <li>CSV import with auto-detecting header mapping dialog (supports any column names, sample value preview, duplicate key resolution)</li>
+        <li>Library Insights: six-panel analytics modal — Overview, Citation Age, Authors, Venues, JEL Coverage, Quality</li>
+        <li>GoatCounter analytics integration — privacy-friendly, no cookies, single script tag</li>
+        <li>Full SEO metadata: Open Graph, Twitter Card, schema keywords targeting JabRef, Zotero, Mendeley, and related ecosystems</li>
+        <li>Version display in header logo subtitle</li>
+        <li>Updated keyboard shortcuts modal to include CSV + Insights</li>
+        <li><code style="font-family:var(--font-mono);font-size:12px;color:var(--teal)">csv-import</code> added as a valid <code style="font-family:var(--font-mono);font-size:12px;color:var(--teal)">datasource</code> value</li>
+      </ul>
+    </div>
+
+    <div class="changelog-entry">
+      <div class="changelog-ver">v0.9 <span class="changelog-date">· initial release candidate</span></div>
+      <ul class="changelog-list">
+        <li>BibTeX parser (nested braces, @string macros, malformed entry handling)</li>
+        <li>Virtual scrolling — fixed 76px row height, DOM proportional to viewport</li>
+        <li>Full-text search across all fields, sidebar filters (type, year, JEL, LOC, datasource)</li>
+        <li>DOI Quick-Add via CrossRef (Cmd+D)</li>
+        <li>ISBN lookup via Open Library with Google Books fallback; WorldCat link-out</li>
+        <li>JEL auto-classification via AEA EconLit XML tree with keyword-scoring engine</li>
+        <li>LOC subclass suggestion for book-type entries</li>
+        <li>datasource provenance field (crossref, openlibrary, googlebooks, manual)</li>
+        <li>Find &amp; Replace across all entries and fields</li>
+        <li>Raw BibTeX pane with syntax highlighting (amber/blue/green)</li>
+        <li>File System Access API save (Chrome/Edge); export to .bib</li>
+        <li>Dark / light theme with localStorage persistence</li>
+        <li>Auto-load from repo path via BIBFORGE_CONFIG</li>
+        <li>Responsive layout: desktop 3-panel, tablet drawer, mobile single-panel with bottom nav</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<section>
+  <p class="section-label reveal">Technical Notes</p>
+  <div class="note-grid reveal">
+    <div class="note-card"><h4>Parser</h4><p>Written from scratch — no external dependencies. Handles nested braces, <code style="font-family:var(--font-mono);font-size:12px;color:var(--teal)">@string</code> and <code style="font-family:var(--font-mono);font-size:12px;color:var(--teal)">@preamble</code> blocks, <code style="font-family:var(--font-mono);font-size:12px;color:var(--teal)">#</code> concatenation, multi-byte characters, and malformed entries without halting the parse.</p></div>
+    <div class="note-card"><h4>Virtual Scrolling</h4><p>Fixed row height of 76px. Only visible rows are in the DOM at any time. Switching filters or running a search recalculates the virtual list instantly — rendering cost is proportional to viewport size, not library size.</p></div>
+    <div class="note-card"><h4>JEL Engine</h4><p>Keyword-scoring against the full AEA EconLit tree fetched on first use and cached for the session. Specificity bonus for 3-character leaf codes. Falls back to an embedded table of 200+ codes if CORS-blocked.</p></div>
+    <div class="note-card"><h4>Deployment</h4><p>Rename to <code style="font-family:var(--font-mono);font-size:12px;color:var(--teal)">bibforge.html</code>, push to GitHub, enable Pages. No <code style="font-family:var(--font-mono);font-size:12px;color:var(--teal)">_config.yml</code>, no Jekyll, no build pipeline. File size stays under GitHub Pages' 100 MB limit at any realistic library size.</p></div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<footer>
+  <div class="f-left">
+    <strong>BibForge</strong> · v1.0 · March 2026<br>
+    <a href="https://www.david-bieri.com">David Bieri</a> · Virginia Tech SPIA<br>
+    Academic library inventory workflow
+  </div>
+  <div class="f-right">
+    <a href="bibforge.html">⟶ Launch Tool</a>
+    <a href="https://github.com/davidbieri/bibforge">GitHub ↗</a>
+    <a href="https://github.com/davidbieri/bibforge/releases">Releases ↗</a>
+    <a href="https://bibforge.goatcounter.com">Stats ↗</a>
+  </div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

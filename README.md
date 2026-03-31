@@ -4,6 +4,8 @@ A single-file, client-side academic reference manager for large BibTeX libraries
 
 Built for academic collections with disciplinary emphasis on urban planning, spatial and regional economics, monetary history, and political economy. Handles libraries of 10,000+ entries without performance degradation.
 
+**Current version: v1.0** · [Changelog](CHANGELOG.md)
+
 ---
 
 ## Quick Start
@@ -17,6 +19,12 @@ Built for academic collections with disciplinary emphasis on urban planning, spa
 - Press `Ctrl/Cmd+D` → paste a DOI → click **Fetch** → **Add to Library** *(fastest path)*
 - Or click **New** in the header to open the full edit form with all fetch options
 
+**Importing from CSV:**
+1. Click **Import .csv** in the header
+2. A column mapping dialog opens — each CSV column is auto-matched to a BibTeX field
+3. Review and adjust mappings; a sample value from row 1 is shown for each column
+4. Click **Import** — entries are stamped `datasource = {csv-import}` and added to the library
+
 **Fetching metadata for a book without a DOI:**
 1. Click **New**, then switch to the **ISBN / Open Library** tab in the edit form
 2. Enter the ISBN and click **Open Library ↗** — Google Books is tried automatically if the result is sparse
@@ -26,6 +34,10 @@ Built for academic collections with disciplinary emphasis on urban planning, spa
 - Scroll to the **Classification** section of the edit form
 - Click **Fetch JEL** — the app suggests the top 3 codes ranked by relevance; click chips to accept
 - For books, click **Suggest LOC** — picks the best Library of Congress subclass from title and keywords
+
+**Library analytics:**
+- Click **Insights** in the toolbar to open the six-panel analytics dashboard
+- Tabs: Overview · Citation Age · Authors · Venues · JEL Coverage · Quality
 
 **Saving your work:**
 - Click **Export .bib** in the header at any point — the file includes all edits and custom fields
@@ -37,12 +49,25 @@ Built for academic collections with disciplinary emphasis on urban planning, spa
 
 ## Deployment
 
-1. Rename `bibforge.html` to `index.html`
-2. Push to any GitHub repository
-3. Enable GitHub Pages: **Settings → Pages → Source: main branch, / (root)**
-4. Access at `https://yourusername.github.io/your-repo/`
+1. Rename `bibforge.html` to `bibforge.html` (or `index.html` if deploying without a separate landing page)
+2. Optionally rename `landing_v1.html` to `index.html` as the repo landing page
+3. Push to any GitHub repository
+4. Enable GitHub Pages: **Settings → Pages → Source: main branch, / (root)**
+5. Access at `https://yourusername.github.io/your-repo/`
 
-No dependencies to install. No build process. No server required. The file is self-contained — all fonts load from Google Fonts; all classification data is embedded.
+No dependencies to install. No build process. No server required.
+
+**Recommended repo structure:**
+
+```
+your-repo/
+├── index.html           ← landing_v1.html renamed (optional)
+├── bibforge.html        ← the app
+├── data/
+│   └── library.bib      ← auto-loaded on startup
+├── README.md
+└── CHANGELOG.md
+```
 
 ---
 
@@ -53,12 +78,26 @@ No dependencies to install. No build process. No server required. The file is se
 | Action | How |
 |---|---|
 | Import `.bib` | Click **Import .bib** in the header, or drag and drop onto the landing screen |
+| Import `.csv` | Click **Import .csv** → header mapping dialog → **Import** |
 | Export `.bib` | Click **Export .bib** — exports the full library with all edits and custom fields |
 | Start fresh | Click **Start with empty library** to begin without a file |
 
 All standard BibTeX entry types are supported: `@article`, `@book`, `@inbook`, `@incollection`, `@inproceedings`, `@techreport`, `@phdthesis`, `@misc`, `@unpublished`, and working papers.
 
 > **Note:** Changes are held in memory only. Export before closing the browser tab.
+
+---
+
+### CSV Import
+
+The CSV import accepts any file with a header row. Column names are auto-detected against common BibTeX fields:
+
+- Recognizes variations: `Authors`, `Publication Year`, `ISBN-13`, `Issue Number`, `Book Title`, etc.
+- Shows a sample value from row 1 for each column to guide manual mapping
+- Unmapped columns are skipped
+- `type` column values are normalized (`Journal Article` → `article`, `Book Chapter` → `inbook`, etc.)
+- Duplicate citation keys are auto-resolved with letter suffixes (`smithb`, `smithc`)
+- All imported entries receive `datasource = {csv-import}` for tracking
 
 ---
 
@@ -76,8 +115,23 @@ The left sidebar and header search bar work together to narrow the entry list.
 | Year range | From / To inputs; either or both can be set |
 | JEL code | Dropdown of codes present in your library |
 | LOC class | Dropdown of classes present in your library |
-| Data source | Filter by CrossRef, Open Library, Google Books, or Manual |
+| Data source | Filter by CrossRef, Open Library, Google Books, CSV Import, or Manual |
 | Sort | Year ↓↑, Author A–Z / Z–A, Title A–Z, Citation key A–Z |
+
+---
+
+### Library Insights
+
+Click **Insights** in the toolbar to open the six-panel analytics dashboard. All analytics run on the in-memory library — no data is sent anywhere.
+
+| Panel | Content |
+|---|---|
+| **Overview** | Total entries, JEL/LOC classification rates, recent (≤5yr) percentage, datasource breakdown |
+| **Citation Age** | Publication year histogram (up to 40 buckets), median age, average age, decade breakdown |
+| **Authors** | Top 20 authors by entry count, multi-author rate, unique author count |
+| **Venues** | Top 20 journals/booktitles by frequency, venue coverage rate |
+| **JEL Coverage** | Top codes with descriptions, category letter roll-up (A–Z), unique codes used |
+| **Quality** | Average metadata completeness, distribution across quality tiers, per-field fill rate |
 
 ---
 
@@ -89,49 +143,30 @@ The fastest path for any entry with a DOI. Press `Ctrl/Cmd+D`, paste a DOI or fu
 
 #### Full Edit Form
 
-Click **New** in the header, or select an entry and click **Edit** in the detail panel. The form opens in the right panel with three metadata fetch tabs at the top:
+Click **New** in the header, or select an entry and click **Edit** in the detail panel.
 
-**Tab 1 — DOI / CrossRef**
-For journal articles and recent books. Paste a DOI and click **CrossRef ↗**.
+**Tab 1 — DOI / CrossRef:** For journal articles and recent books.
 
-**Tab 2 — ISBN / Open Library**
-For books, edited volumes, and pre-ISBN monographs where you have an ISBN.
+**Tab 2 — ISBN / Open Library:** For books and edited volumes.
+- **Open Library ↗** — queries the Open Library API; falls back to Google Books if sparse
+- **Google Books ↗** — queries Google Books API directly
+- **WorldCat ↗** — opens a WorldCat search in a new tab
 
-- **Open Library ↗** — queries the [Open Library API](https://openlibrary.org/developers/api), which aggregates WorldCat data. Returns title, authors, year, publisher, city, ISBN, LC classification, subjects, pages, and edition. Automatically falls back to Google Books if the result is missing title or author.
-- **Google Books ↗** — queries the Google Books API directly, as a parallel or manual fallback.
-- **WorldCat ↗** — opens a WorldCat search in a new tab, pre-filled with the ISBN or title/author from the form. Use this for volumes not found by either API; copy the BibTeX from WorldCat and paste it manually.
-
-**Tab 3 — Title Search**
-When you have no ISBN or DOI. Enter title keywords and optionally an author surname.
-
-- **Open Library ↗** — if a matching record has an ISBN, the full ISBN lookup runs automatically to retrieve richer metadata
-- **Google Books ↗** — parallel title/author search against Google's index
-- **WorldCat ↗** — same link-out, pre-filled from the title and author fields
-
-#### From existing entries
-
-Select any entry and click **Edit** in the detail panel to modify it in place.
+**Tab 3 — Title Search:** When you have no ISBN or DOI.
 
 ---
 
 ### Metadata Provenance — `datasource` Field
 
-Every entry fetched via an API is stamped with a `datasource` field identifying where the metadata came from:
+Every entry fetched via an API or imported from CSV is stamped with a `datasource` field:
 
 | Value | Source |
 |---|---|
 | `crossref` | CrossRef API (DOI lookup) |
 | `openlibrary` | Open Library |
 | `googlebooks` | Google Books (direct call or fallback) |
+| `csv-import` | CSV file import |
 | `manual` | Hand-entered or imported without a fetch |
-
-The badge is shown in the detail panel. The field is written to the exported `.bib` file:
-
-```bibtex
-datasource   = {openlibrary},
-```
-
-This lets you filter the sidebar by source to audit which entries still need review, and tracks provenance through the full workflow from initial import to LaTeX manuscript.
 
 ---
 
@@ -139,69 +174,21 @@ This lets you filter the sidebar by source to audit which entries still need rev
 
 #### JEL Codes (Journal of Economic Literature)
 
-The **Fetch JEL** button is in the Classification section of the edit form.
-
-1. Fill in at minimum the entry's title; abstract and keywords improve accuracy
-2. Click **Fetch JEL** — on first use the full AEA EconLit classification tree is fetched from `https://www.aeaweb.org/econlit/classificationTree.xml` and cached for the session
-3. A keyword-scoring engine matches the entry text against all code descriptions, with a specificity bonus for 3-character leaf codes over 2-character group codes
-4. The top 3 codes are shown as ranked chips with their full descriptions and the matched terms that drove the suggestion
-5. Click any chip to add it to the entry's JEL field; chips turn green when accepted
-
-If the AEA endpoint is blocked by CORS, the app falls back silently to its built-in table of 200+ codes. A status note indicates which source was used.
-
-JEL codes can also be searched and selected manually using the searchable picker below the suggestion strip. Click a selected tag to remove it.
+Click **Fetch JEL** in the Classification section of the edit form. The app fetches the full AEA EconLit classification tree on first use (cached for the session) and runs a keyword-scoring engine against title, abstract, and keywords. Top 3 codes are shown as ranked chips with matched terms and their full descriptions.
 
 **Output format:**
-
 ```bibtex
 jel          = {R11; R31; H72},
 ```
 
 #### Library of Congress Classification
 
-The **Suggest LOC** button is active only when the entry type is a book variant (`@book`, `@inbook`, `@incollection`, `@proceedings`). It is disabled for articles and other types.
-
-1. Set entry type to a book variant
-2. Fill in title; keywords and abstract improve accuracy
-3. Click **Suggest LOC** — up to 3 candidate classes appear as clickable chips
-4. Click a chip to apply it to the dropdown; the dropdown can also be set manually
-
-The engine uses an extended keyword table weighted toward economics, social science, and urban planning subclasses: HB (economic theory), HC (economic history), HD (industries, land, labor), HG (finance), HJ (public finance), HT (communities and urban), HX (socialism/political economy), NA (architecture), JC (political theory), JS (local government), and others.
+Click **Suggest LOC** (active for book-type entries only). Up to 3 candidate classes appear as clickable chips. The engine uses a keyword table weighted toward economics, social science, and urban planning subclasses.
 
 **Output format:**
-
 ```bibtex
 lcc          = {HD},
 ```
-
----
-
-### Entry Detail Panel
-
-Selecting an entry opens the detail panel on the right with the full bibliographic record: venue, volume, pages, publisher, city, edition, DOI (clickable, opens in browser), ISBN, URL, JEL codes with descriptions, LOC class, abstract, keywords, note, data source badge, and citation key.
-
-Action buttons:
-
-| Button | Action |
-|---|---|
-| **Edit** | Opens the full edit form in place |
-| **Copy Key** | Copies the citation key to clipboard (for use in LaTeX `\cite{}`) |
-| **Copy BibTeX** | Copies the complete formatted BibTeX entry to clipboard |
-| **Delete** | Removes the entry after confirmation |
-
-#### Raw BibTeX Pane
-
-At the bottom of the detail panel, a collapsible **Raw BibTeX** section shows the exact output that will be written to the exported `.bib` file. Click the row to expand or collapse it.
-
-The pane is syntax-highlighted: entry type and citation key in amber, field names in blue, values in green, braces in muted grey — matching the overall BibForge colour scheme. It updates automatically as you switch between entries, and closes when you open the edit form to avoid showing stale content mid-edit.
-
-Use it to:
-- Verify field names (`journal` vs `booktitle`, `lcc`, `datasource`) before export
-- Check brace nesting and special characters in titles and author strings
-- Confirm the citation key matches what's in your `.tex` file
-- Spot missing fields that the formatted view may not make obvious
-
-The pane is read-only. To edit, use the **Edit** button — the raw view refreshes automatically once you save.
 
 ---
 
@@ -227,7 +214,7 @@ BibForge uses the format `author:year:keyword` throughout, matching the Better B
 
 Examples: `muth:1969:cities`, `alonso:1964:location`, `keynes:1936:employment`
 
-When a fetch generates a key that already exists in the library, a letter suffix is appended automatically (`smithb`, `smithc`, etc.).
+When a fetch or CSV import generates a key that already exists in the library, a letter suffix is appended automatically (`smithb`, `smithc`, etc.).
 
 ---
 
@@ -239,60 +226,35 @@ The exported `.bib` file is standard BibTeX and imports directly into:
 - **JabRef** — File → Import → BibTeX
 - **LaTeX** — `\bibliography{library_export}` and `\cite{key}`
 
-The custom fields (`jel`, `lcc`, `datasource`) are preserved through round-trips in both Zotero and JabRef, appearing under Extra or custom field tabs. They do not interfere with standard BibTeX processing in LaTeX.
+The custom fields (`jel`, `lcc`, `datasource`) are preserved through round-trips in both Zotero and JabRef.
 
 ---
 
 ## Auto-Loading a Library from the Repository
 
-BibForge can fetch a `.bib` file automatically on startup if it lives in the same GitHub repository. No manual import step, no file picker — the library opens immediately when the page loads.
-
-### Setup
-
-Commit your `.bib` file anywhere in the repo, then edit the config block near the top of `index.html`:
+Configure `BIBFORGE_CONFIG.autoLoad` to a repo-relative path and the library fetches automatically on startup:
 
 ```javascript
 const BIBFORGE_CONFIG = {
-  autoLoad: '/bib/library_inventory.bib',   // path relative to repo root
-  autoLoadLabel: 'library_inventory.bib',   // display name shown in the UI
+  autoLoad: '/data/library.bib',   // path relative to repo root
+  autoLoadLabel: 'library.bib',    // display name shown in the UI
 };
 ```
 
-The path must start with `/` and match the file's location in the repository exactly. Any subfolder name works — use whatever makes sense for your project structure:
+Set `autoLoad: null` to disable. On startup BibForge issues a `fetch()` to the configured path. Because the `.bib` file is served from the same GitHub Pages origin as the app, the request succeeds without CORS restrictions or authentication.
 
-```javascript
-autoLoad: '/bib/library_inventory.bib'        // bib/ subfolder
-autoLoad: '/data/library.bib'                 // data/ subfolder
-autoLoad: '/references/main.bib'              // references/ subfolder
-autoLoad: '/library_inventory.bib'            // repo root
-```
-
-Set `autoLoad: null` to disable auto-loading and always show the manual import screen instead.
-
-### How it works
-
-On startup BibForge issues a `fetch()` to the configured path. Because the `.bib` file is served from the same GitHub Pages origin as the app, the request succeeds without CORS restrictions or authentication. The progress bar fills as the file is fetched and parsed. If the path is wrong or the file is missing, BibForge falls back gracefully to the manual import screen and logs the specific HTTP error to the browser console.
-
-If you ever rename the file or move it to a different subfolder, update the `autoLoad` line and push — no other changes are needed.
-
-### Workflow with version control
-
-With auto-load enabled, the recommended editing cycle is:
+### Recommended editing cycle with auto-load
 
 1. Open BibForge — library loads automatically from the repo
-2. Browse, add entries, fetch metadata, classify
-3. Click **Export .bib** or press `Ctrl/Cmd+S` — save the file back to the same local subfolder
+2. Browse, add entries, fetch metadata, classify, run Insights
+3. Click **Export .bib** — save the file back to `data/library.bib` locally
 4. Commit and push — the updated library is live on the next page load
 
-This keeps the `.bib` file under version control. Every commit is a dated snapshot of the library state, diffs show exactly which entries changed, and the file is accessible from any browser without local software.
+---
 
-### File size
+## Analytics
 
-GitHub Pages serves files up to 100 MB. A 12,000-entry `.bib` file is typically 5–15 MB, well within bounds.
-
-### OneDrive / Google Drive
-
-Direct API access from a static page is not supported without OAuth, which would require a registered app ID and an authentication flow. The practical path for cloud-synced libraries is to use the **desktop sync client** (OneDrive or Google Drive for Desktop), which mirrors the repo folder to the local filesystem. BibForge opens the file via the manual import picker, and the sync client handles propagating the exported `.bib` back to the cloud automatically.
+BibForge uses [GoatCounter](https://www.goatcounter.com) for privacy-friendly page analytics on the landing page and app. GoatCounter collects no personal data, sets no cookies, and does not track individuals across sites. Only page views and referrers are recorded. Public stats are available at [bibforge.goatcounter.com](https://bibforge.goatcounter.com).
 
 ---
 
@@ -300,9 +262,7 @@ Direct API access from a static page is not supported without OAuth, which would
 
 ### Performance
 
-The entry list uses virtual scrolling — only the rows currently visible in the viewport are rendered as DOM elements, regardless of library size. Scrolling through 12,000 entries costs the same as scrolling through 50.
-
-The BibTeX parser is written from scratch with no external dependencies. It handles nested braces, quoted strings, `@string` and `@preamble` blocks (skipped gracefully), `#` concatenation, malformed entries (skipped without halting the parse), and multi-byte / accented Latin characters.
+The entry list uses virtual scrolling — only the rows currently visible in the viewport are rendered as DOM elements, regardless of library size. Row height is fixed at 76px.
 
 ### Privacy and Outbound Requests
 
@@ -314,6 +274,7 @@ All processing happens in the browser. No library data is ever transmitted. The 
 | `openlibrary.org` | ISBN or title lookup | The ISBN or search query |
 | `googleapis.com/books` | Google Books lookup or fallback | The ISBN or search query |
 | `www.aeaweb.org/econlit/classificationTree.xml` | First Fetch JEL click | Nothing (GET request) |
+| `gc.zgo.at/count.js` | Page load | Page URL and referrer (no cookies) |
 | `fonts.googleapis.com` | App startup | Nothing (GET request) |
 | Same-repo `.bib` path | Auto-load on startup | Nothing (same-origin GET) |
 
@@ -321,24 +282,21 @@ WorldCat opens in a new browser tab — no data passes through the app.
 
 ### Browser Storage
 
-Theme preference (light/dark) is saved to `localStorage`. All library data lives in memory only for the duration of the session — nothing is written to disk automatically. Export your `.bib` file to save work.
+Theme preference (light/dark) is saved to `localStorage`. All library data lives in memory only for the duration of the session — nothing is written to disk automatically.
 
 ---
 
-## File Structure
+## Version Control
 
-The `.bib` file can live in any subfolder. The only requirement is that `BIBFORGE_CONFIG.autoLoad` in `index.html` matches the actual path. Three common layouts:
+Tag each release before pushing:
 
-```
-your-repo/                         your-repo/                    your-repo/
-├── index.html                     ├── index.html                ├── index.html
-├── bib/                           ├── data/                     ├── library_inventory.bib
-│   └── library_inventory.bib      │   └── library.bib           └── README.md
-└── README.md                      └── README.md
-   autoLoad: '/bib/...'               autoLoad: '/data/...'         autoLoad: '/library...'
+```bash
+# Tag v1.0
+git tag -a v1.0 -m "BibForge v1.0 — CSV import, Library Insights, GoatCounter, SEO"
+git push origin v1.0
 ```
 
-No `_config.yml`, Jekyll configuration, or custom domain setup required.
+Create a GitHub Release from the tag with the relevant CHANGELOG section as the description.
 
 ---
 
