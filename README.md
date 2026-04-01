@@ -8,7 +8,7 @@ A single-file, client-side academic reference manager for large BibTeX libraries
 
 Built for academic collections with disciplinary emphasis on urban planning, spatial and regional economics, monetary history, and political economy. Handles libraries of 10,000+ entries without performance degradation.
 
-**Current version: v1.0** · [Changelog](CHANGELOG.md)
+**Current version: v1.2** · [Changelog](CHANGELOG.md)
 
 ---
 
@@ -33,6 +33,18 @@ Built for academic collections with disciplinary emphasis on urban planning, spa
 1. Click **New**, then switch to the **ISBN / Open Library** tab in the edit form
 2. Enter the ISBN and click **Open Library ↗** — Google Books is tried automatically if the result is sparse
 3. If neither API has it, click **WorldCat ↗** to search directly in a new tab
+
+**Adding an archival / primary source entry:**
+1. Click **New**, select **archival** as the entry type — the form reveals the Archival Source section automatically and switches to the **Archival Search** fetch tab
+2. Enter keywords in the search bar and click **Internet Archive ↗** — click any result card to apply fields
+3. Fill in `repository`, `collection`, `box`, `folder`, and `access` status manually as needed
+4. Use the **ArchiveGrid ↗** and **SNAC ↗** buttons to look up finding aids and name authorities
+5. Save — the entry is stamped `datasource = {archive-visit}` and the Archive Access filter appears in the sidebar
+
+**Generating a Chicago citation:**
+- Select any entry in the library
+- Click **Chicago NB Citation** in the detail panel (below Raw BibTeX) to expand the pane
+- Click **Copy citation** — plain-text Chicago 17th ed. bibliography format, ready to paste
 
 **Classifying an entry:**
 - Scroll to the **Classification** section of the edit form
@@ -86,7 +98,7 @@ your-repo/
 | Export `.bib` | Click **Export .bib** — exports the full library with all edits and custom fields |
 | Start fresh | Click **Start with empty library** to begin without a file |
 
-All standard BibTeX entry types are supported: `@article`, `@book`, `@inbook`, `@incollection`, `@inproceedings`, `@techreport`, `@phdthesis`, `@misc`, `@unpublished`, and working papers.
+All standard BibTeX entry types are supported: `@article`, `@book`, `@inbook`, `@incollection`, `@inproceedings`, `@techreport`, `@phdthesis`, `@misc`, `@unpublished`, working papers, and the custom `@archival` type for primary sources.
 
 > **Note:** Changes are held in memory only. Export before closing the browser tab.
 
@@ -116,10 +128,11 @@ The left sidebar and header search bar work together to narrow the entry list.
 | Filter | Behavior |
 |---|---|
 | Entry type | Click to show only that type; live counts update as other filters change |
-| Year range | From / To inputs; either or both can be set |
+| Year range | From / To inputs; either or both can be set. For `@archival` entries with a `date_range` field, uses overlap logic (e.g. `1923--1947` matches any window touching that span) |
 | JEL code | Dropdown of codes present in your library |
 | LOC class | Dropdown of classes present in your library |
-| Data source | Filter by CrossRef, Open Library, Google Books, CSV Import, or Manual |
+| Data source | Filter by CrossRef, Open Library, Google Books, CSV Import, Archive Visit, or Manual |
+| Archive Access | Filter by `open`, `digitized`, `by-appointment`, or `restricted` — only visible when archival entries are loaded |
 | Sort | Year ↓↑, Author A–Z / Z–A, Title A–Z, Citation key A–Z |
 
 ---
@@ -158,6 +171,14 @@ Click **New** in the header, or select an entry and click **Edit** in the detail
 
 **Tab 3 — Title Search:** When you have no ISBN or DOI.
 
+**Tab 4 — Archival Search:** For primary sources and digitized collections.
+- **Internet Archive ↗** — searches the IA Advanced Search API (no key required); returns up to 8 result cards with title, creator, date, and mediatype. Click any card to apply fields to the form.
+- **DPLA ↗** — opens the Digital Public Library of America in a new tab
+- **Europeana ↗** — opens Europeana's aggregated European cultural heritage search
+- **ArchiveGrid ↗** / **SNAC ↗** — in the Archival Source form section, search OCLC's finding-aid aggregator and the Social Networks and Archival Context name authority
+
+The Archival Search tab is selected automatically when the entry type is set to `archival`.
+
 ---
 
 ### Metadata Provenance — `datasource` Field
@@ -170,6 +191,7 @@ Every entry fetched via an API or imported from CSV is stamped with a `datasourc
 | `openlibrary` | Open Library |
 | `googlebooks` | Google Books (direct call or fallback) |
 | `csv-import` | CSV file import |
+| `archive-visit` | Internet Archive fetch or manually recorded archival visit |
 | `manual` | Hand-entered or imported without a fetch |
 
 ---
@@ -193,6 +215,67 @@ Click **Suggest LOC** (active for book-type entries only). Up to 3 candidate cla
 ```bibtex
 lcc          = {HD},
 ```
+
+---
+
+### Archival Research
+
+#### @archival Entry Type
+
+Select `archival` from the entry type dropdown to activate a dedicated Archival Source form section with the following fields:
+
+| Field | Description |
+|---|---|
+| `repository` | Holding institution (e.g. *National Archives, NARA*) |
+| `collection` | Named collection or record group |
+| `box` | Box number within the collection |
+| `folder` | Folder number within the box |
+| `item` | Individual document description |
+| `call_number` | Archive's own finding-aid identifier |
+| `date_range` | Date span of the material, e.g. `1923--1947` |
+| `access` | One of: `open`, `digitized`, `restricted`, `by-appointment` |
+| `finding_aid_url` | URL to the EAD/HTML finding aid |
+| `visit_date` | Date of your research visit |
+| `access_note` | Permission notes or access conditions |
+
+All fields are written to the exported `.bib` file as standard BibTeX custom fields and survive round-trips through Zotero and JabRef.
+
+**In the entry list,** archival entries show a colour-coded access badge (`open` / `digitized` / `restricted` / `by-appointment`) and display `date_range` in place of a single year. The **Archive Access** sidebar filter appears automatically when archival entries are present in the library.
+
+**Year filtering** uses overlap logic for `date_range`: a filter of 1930–1950 will match an entry with `date_range = {1923--1947}` because the ranges intersect.
+
+#### Archival Search Tab
+
+The **Archival Search** tab in the edit form (Tab 4) provides:
+
+- **Internet Archive** — live search of the IA Advanced Search API. Returns up to 8 result cards with title, creator, date, mediatype, and subject. Clicking a card applies `title`, `author`, `year`, `url`, `publisher`, and `keywords` to the form; for archival entries it also populates `collection` and `finding_aid_url` and sets `datasource` to `archive-visit`.
+- **DPLA ↗** — link-out to the Digital Public Library of America
+- **Europeana ↗** — link-out to Europeana's pan-European cultural heritage search
+
+In the **Archival Source** form section:
+- **ArchiveGrid ↗** — searches OCLC ArchiveGrid using repository + collection + title
+- **SNAC ↗** — searches Social Networks and Archival Context for corporate/personal name authorities
+
+Both ArchiveGrid and SNAC link-outs also appear in the **detail read view** under the Archival Location block.
+
+---
+
+### Chicago Notes-Bibliography Citations
+
+A collapsible **Chicago NB Citation** pane in the detail view (below Raw BibTeX) renders a formatted Chicago 17th edition bibliography entry for any selected entry. Click **Copy citation** for plain-text output.
+
+Coverage by entry type:
+
+| Type | Format |
+|---|---|
+| `@archival` | Creator (if any). "Item description." Date range. Collection, Box X, Folder Y. Repository. Finding aid URL. |
+| `@article` | Author. "Title." *Journal* vol, no. N (year): pages. DOI. |
+| `@book` / `@inbook` | Author. *Title*. Edited by … Nth ed. Place: Publisher, year. |
+| `@incollection` / `@inproceedings` | Author. "Chapter title." In *Booktitle*, edited by …, pages. Place: Publisher, year. |
+| `@phdthesis` | Author. "Title." PhD diss., Institution, year. |
+| `@techreport` / `@working` | Author. "Title." Institution, year. No. N. |
+
+Author formatting follows Chicago bibliography style: first author inverted (Last, First), subsequent authors in natural order, Oxford comma for three or more, `ed.`/`eds.` suffix for editor-only entries.
 
 ---
 
@@ -277,12 +360,13 @@ All processing happens in the browser. No library data is ever transmitted. The 
 | `api.crossref.org` | DOI lookup | The DOI only |
 | `openlibrary.org` | ISBN or title lookup | The ISBN or search query |
 | `googleapis.com/books` | Google Books lookup or fallback | The ISBN or search query |
+| `archive.org/advancedsearch.php` | Archival Search tab | Search query only |
 | `www.aeaweb.org/econlit/classificationTree.xml` | First Fetch JEL click | Nothing (GET request) |
 | `gc.zgo.at/count.js` | Page load | Page URL and referrer (no cookies) |
 | `fonts.googleapis.com` | App startup | Nothing (GET request) |
 | Same-repo `.bib` path | Auto-load on startup | Nothing (same-origin GET) |
 
-WorldCat opens in a new browser tab — no data passes through the app.
+WorldCat, ArchiveGrid, SNAC, DPLA, and Europeana open in a new browser tab — no data passes through the app.
 
 ### Browser Storage
 
@@ -295,9 +379,9 @@ Theme preference (light/dark) is saved to `localStorage`. All library data lives
 Tag each release before pushing:
 
 ```bash
-# Tag v1.0
-git tag -a v1.0 -m "BibForge v1.0 — CSV import, Library Insights, GoatCounter, SEO"
-git push origin v1.0
+# Tag v1.2
+git tag -a v1.2 -m "BibForge v1.2 — Archival Search tab, Internet Archive fetch, Chicago NB citations"
+git push origin v1.2
 ```
 
 Create a GitHub Release from the tag with the relevant CHANGELOG section as the description.
